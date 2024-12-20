@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using MauiMudBlazor.Helpers;
+using MauiMudBlazor.Contexts;
 
 namespace MauiMudBlazor
 {
@@ -20,6 +21,7 @@ namespace MauiMudBlazor
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
             builder.Services.AddSingleton<EventHandleHelper>();
+            builder.Services.AddSingleton<BackpackAppContext>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

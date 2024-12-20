@@ -44,10 +44,10 @@
 	
 	
 	<ItemGroup>
-		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#03ce5c"   ForegroundFile="Resources\AppIcon\appicon.png"/>
+		<!-- App Icon   Foreground goes in front Color goes behind foreground-->
+		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#03ce5c" ForegroundFile="Resources\AppIcon\appicon.png" />
 
-		<!-- Splash Screen -->
+		<!-- Splash Screen  screen that pops up while the app is loading-->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" ForegroundFile="Resources\AppIcon\appicon.png" Color="#03ce5c" BaseSize="128,128" />
 
 		<!-- Images -->
@@ -61,6 +61,19 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	
+	
+	
+	
+	<ItemGroup>
+	  <AndroidResource Remove="Entities - Copy\**" />
+	  <Compile Remove="Entities - Copy\**" />
+	  <Content Remove="Entities - Copy\**" />
+	  <EmbeddedResource Remove="Entities - Copy\**" />
+	  <MauiXaml Remove="Entities - Copy\**" />
+	  <None Remove="Entities - Copy\**" />
+	</ItemGroup>
+
 
 	
 	
@@ -70,7 +83,26 @@
       <None Remove="Resources\Splash\splash.png" />
     </ItemGroup>
 
+
+	
+	
+	
+	
 	<ItemGroup>
+	  <None Include="Components\Pages\Counter.razor" />
+	  <None Include="Components\Pages\Home.razor" />
+	  <None Include="Components\Pages\Weather.razor" />
+	</ItemGroup>
+
+	
+	
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.100" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.100" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.100" />

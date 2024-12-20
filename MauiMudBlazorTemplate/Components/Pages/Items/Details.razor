@@ -1,0 +1,56 @@
+﻿@page "/items/details/{ItemId:int}"
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+@inject NavigationManager NavManager
+
+<h1>Item Details</h1>
+
+@if (itemDetails != null)
+{
+    <div class="card" style="width: 24rem;">
+        <img src="@itemDetails.PictureUrl" class="card-img-top" alt="Item Image">
+        <div class="card-body">
+            <h5 class="card-title">@itemDetails.Name</h5>
+            <p class="card-text"><strong>Description:</strong> @itemDetails.Description</p>
+            <p class="card-text"><strong>Weight:</strong> @itemDetails.Weight kg</p>
+            <p class="card-text"><strong>Quantity:</strong> @itemDetails.Quantity</p>
+            <p class="card-text"><strong>In Backpack:</strong> @(itemDetails.BackpackId != 1 ? "Yes" : "No")</p>
+
+        </div>
+        <div class="card-body">
+            <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+            <a class="btn btn-primary" asp-page="./items/edit" asp-route-id="@itemDetails.ItemId">Edit</a>
+        </div>
+    </div>
+}
+else if (isLoading)
+{
+    <p>Loading item details...</p>
+}
+else
+{
+    <p class="text-danger">The item could not be found.</p>
+}
+
+@code {
+    [Parameter]
+    public int ItemId { get; set; }
+
+    private Item? itemDetails;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_context == null)
+            throw new InvalidOperationException("Database context is not initialized.");
+
+        itemDetails = await _context.Items.FindAsync(ItemId);
+        isLoading = false;
+    }
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/items/list");
+    }
+}

@@ -1,0 +1,64 @@
+﻿@page "/items/delete/{ItemId:int}"
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+@inject NavigationManager NavManager
+
+<h1>Delete Item</h1>
+
+@if (itemToDelete != null)
+{
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Are you sure you want to delete this item?</h4>
+        <p><strong>Name:</strong> @itemToDelete.Name</p>
+        <p><strong>Description:</strong> @itemToDelete.Description</p>
+        <hr />
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-danger" @onclick="DeleteItem">Yes, Delete</button>
+            <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
+    </div>
+}
+else if (isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p class="text-danger">The item was not found.</p>
+}
+
+@code {
+    [Parameter]
+    public int ItemId { get; set; }
+
+    private Item? itemToDelete;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_context == null)
+            throw new InvalidOperationException("Database context is not initialized.");
+
+        itemToDelete = await _context.Items.FindAsync(ItemId);
+        isLoading = false;
+    }
+
+    private async Task DeleteItem()
+    {
+        if (_context != null && itemToDelete != null)
+        {
+            _context.Items.Remove(itemToDelete);
+            await _context.SaveChangesAsync();
+
+            // Redirect to the list page
+            NavManager.NavigateTo("/items/list");
+        }
+    }
+
+    private void Cancel()
+    {
+        // Navigate back to the list page
+        NavManager.NavigateTo("/items/list");
+    }
+}
