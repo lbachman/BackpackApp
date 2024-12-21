@@ -1,5 +1,113 @@
-﻿<h3>Edit</h3>
+﻿@page "/backpacks/edit/{id:int}"
+@using MauiMudBlazor.Entities
+@using Microsoft.EntityFrameworkCore
+@inject NavigationManager NavManager
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+
+<h1>Edit Backpack</h1>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (backpack == null)
+{
+    <p>Backpack not found.</p>
+}
+else
+{
+    <EditForm Model="@backpack" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <InputText id="name" class="form-control" @bind-Value="item.Name" />
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <InputText id="description" class="form-control" @bind-Value="item.Description" />
+        </div>
+
+        <div class="mb-3">
+            <label for="weight" class="form-label">Weight:</label>
+            <InputNumber id="weight" class="form-control" @bind-Value="item.Weight" />
+        </div>
+
+        <div class="mb-3">
+            <label for="pictureUrl" class="form-label">Picture URL:</label>
+            <InputText id="pictureUrl" class="form-control" @bind-Value="item.PictureUrl" />
+        </div>
+
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity:</label>
+            <InputNumber id="quantity" class="form-control" @bind-Value="item.Quantity" />
+        </div>
+
+        <div class="mb-3">
+            <label for="subbagId" class="form-label">Subbag ID:</label>
+            <InputNumber id="subbagId" class="form-control" @bind-Value="item.SubbagId" />
+        </div>
+
+        <div class="mb-3">
+            <label for="backpackId" class="form-label">Backpack ID:</label>
+            <InputNumber id="backpackId" class="form-control" @bind-Value="item.BackpackId" />
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
+    </EditForm>
+}
 
 @code {
+    [Parameter]
+    public int id { get; set; } // ID from the route parameter
 
+    private Backpack? backpack;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the item by ID
+        try
+        {
+            if (_context == null)
+                throw new InvalidOperationException("Database context is not initialized.");
+
+            item = await _context.Backpacks.FirstOrDefaultAsync(i => i.BackpackId == id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading item: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_context != null && backpack != null)
+        {
+            try
+            {
+                _context.Backpacks.Update(item);
+                await _context.SaveChangesAsync();
+                NavManager.NavigateTo("/backpacks/list"); // Redirect to items list
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving changes: {ex.Message}");
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        NavManager.NavigateTo("/backpacks/list"); // Redirect to items list
+    }
 }

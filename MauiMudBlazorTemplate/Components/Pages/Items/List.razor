@@ -62,41 +62,53 @@
 
 @if (Items.Any())
 {
-    <div class="row">
+    <MudGrid>
         @foreach (var item in Items)
         {
-            <div class="col-md-4 col-sm-6 mb-4">
-                <div class="card mb-4" style="width: 18rem;">
-                    <a href="/items/details/@item.ItemId" class="card-link">
-                        <img  src="@item.PictureUrl" class="card-img-top" alt="Item Image">
-                        <div class="card-body">
-                            <h5 class="card-title">@item.Name</h5>
-                            <p class="card-text">@item.Description</p>
-                            <p class="card-text">Weight: @item.Weight</p>
-                            <p class="card-text">Quantity: @item.Quantity</p>
-                        </div>
-                    </a>
-                    <div class="card-body">
-                        <div class="btn-group" role="group">
-                            <a href="/items/edit/@item.ItemId" class="btn btn-secondary">Edit</a>
-                            <a href="/items/delete/@item.ItemId" class="btn btn-danger">Delete</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            var detailsLink = $"/items/details/{item.ItemId}";
+            var editLink = $"/items/edit/{item.ItemId}";
+            var deleteLink = $"/items/delete/{item.ItemId}";
+
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Class="mb-4" Style="width: 18rem;">
+                    <!-- Clickable image -->
+                    <MudLink Href="@detailsLink">
+                        <MudCardMedia Image="" Alt="Item Image" Class="card-img-top" />
+                    </MudLink>
+
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">@item.Name</MudText>
+                            <MudText Typo="Typo.body2">@item.Description</MudText>
+                            <MudText Typo="Typo.body2">Weight: @item.Weight</MudText>
+                            <MudText Typo="Typo.body2">@item.Quantity</MudText>
+                        </MudCardContent>
+
+                        <MudCardActions>
+                            <MudButtonGroup>
+                                <MudLink Href="@editLink">
+                                    <MudButton Variant="Variant.Text" Color="Color.Secondary">
+                                        Edit
+                                    </MudButton>
+                                </MudLink>
+                                <MudLink Href="@deleteLink">
+                                    <MudButton Variant="Variant.Text" Color="Color.Error">
+                                        Delete
+                                    </MudButton>
+                                </MudLink>
+                            </MudButtonGroup>
+                        </MudCardActions>
+
+                    </MudCard>
+                </MudItem>
         }
-    </div>
+    </MudGrid>
+
 }
+
 else
 {
     <p>No items found.</p>
 }
-
-
-
-
-
-
 
 
 

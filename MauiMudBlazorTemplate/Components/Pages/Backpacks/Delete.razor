@@ -1,5 +1,64 @@
-﻿<h3>Delete</h3>
+﻿@page "/backpacks/delete/{BackpackId:int}"
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+@inject NavigationManager NavManager
+
+<h1>Delete Backpack</h1>
+
+@if (backpackToDelete != null)
+{
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Are you sure you want to delete this backpack?</h4>
+        <p><strong>Name:</strong> @backpackToDelete.Name</p>
+        <p><strong>Description:</strong> @backpackToDelete.Description</p>
+        <hr />
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-danger" @onclick="DeleteBackpack">Yes, Delete</button>
+            <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
+    </div>
+}
+else if (isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p class="text-danger">The backpack was not found.</p>
+}
 
 @code {
+    [Parameter]
+    public int BackpackId { get; set; }
 
+    private Backpack? backpackToDelete;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_context == null)
+            throw new InvalidOperationException("Database context is not initialized.");
+
+        backpackToDelete = await _context.Backpacks.FindAsync(BackpackId);
+        isLoading = false;
+    }
+
+    private async Task DeleteBackpack()
+    {
+        if (_context != null && backpackToDelete != null)
+        {
+            _context.Backpacks.Remove(backpackToDelete);
+            await _context.SaveChangesAsync();
+
+            // Redirect to the list page
+            NavManager.NavigateTo("/backpacks/list");
+        }
+    }
+
+    private void Cancel()
+    {
+        // Navigate back to the list page
+        NavManager.NavigateTo("/backpacks/list");
+    }
 }

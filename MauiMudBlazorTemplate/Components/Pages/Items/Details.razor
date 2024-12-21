@@ -8,21 +8,37 @@
 
 @if (itemDetails != null)
 {
-    <div class="card" style="width: 24rem;">
-        <img src="@itemDetails.PictureUrl" class="card-img-top" alt="Item Image">
-        <div class="card-body">
-            <h5 class="card-title">@itemDetails.Name</h5>
-            <p class="card-text"><strong>Description:</strong> @itemDetails.Description</p>
-            <p class="card-text"><strong>Weight:</strong> @itemDetails.Weight kg</p>
-            <p class="card-text"><strong>Quantity:</strong> @itemDetails.Quantity</p>
-            <p class="card-text"><strong>In Backpack:</strong> @(itemDetails.BackpackId != 1 ? "Yes" : "No")</p>
+    var editLink = $"/items/edit/{ItemId}";
 
-        </div>
-        <div class="card-body">
-            <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
-            <a class="btn btn-primary" asp-page="./items/edit" asp-route-id="@itemDetails.ItemId">Edit</a>
-        </div>
-    </div>
+    <MudCard Style="width: 24rem;" Class="mb-4">
+    <!-- Item Image -->
+    <MudCardMedia Image="@itemDetails.PictureUrl" Alt="Item Image" Class="card-img-top" />
+
+    <!-- Card Body -->
+    <MudCardContent>
+        <MudText Typo="Typo.h5" Class="card-title">@itemDetails.Name</MudText>
+        <MudText Typo="Typo.body1"><strong>Description:</strong> @itemDetails.Description</MudText>
+        <MudText Typo="Typo.body1"><strong>Weight:</strong> @itemDetails.Weight kg</MudText>
+        <MudText Typo="Typo.body1"><strong>Quantity:</strong> @itemDetails.Quantity</MudText>
+        <MudText Typo="Typo.body1">
+            <strong>In Backpack:</strong> @(itemDetails.BackpackId != 1 ? "Yes" : "No")
+        </MudText>
+    </MudCardContent>
+
+    <!-- Card Actions -->
+    <MudCardActions>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoBack">Back to List</MudButton>
+                <MudLink Href="@editLink">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+        </MudLink>
+    </MudCardActions>
+</MudCard>
+
+
+
+
+
+
 }
 else if (isLoading)
 {
@@ -33,7 +49,8 @@ else
     <p class="text-danger">The item could not be found.</p>
 }
 
-@code {
+@code 
+{
     [Parameter]
     public int ItemId { get; set; }
 

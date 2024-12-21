@@ -1,5 +1,58 @@
-﻿<h3>Details</h3>
+﻿@page "/backpacks/details/{BackpackId:int}"
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+@inject NavigationManager NavManager
 
-@code {
+
+<h1>Backpack Details</h1>
+
+@if (backpackDetails != null)
+{
+    var editLink = $"/backpacks/edit/{BackpackId}";
+
+    <MudCard Style="width: 24rem;" Class="mb-4">    
+
+        <!-- Card Body -->
+        <MudCardContent>
+            <MudText Typo="Typo.h5" Class="card-title">@backpackDetails.Name</MudText>
+                <MudText Typo="Typo.body1"><strong>Description:</strong> @backpackDetails.Description</MudText>
+                <MudText Typo="Typo.body1"><strong>Weight:</strong> @backpackDetails.Weight kg</MudText>
+                <MudText Typo="Typo.body1"><strong>Capacity(liters):</strong> @backpackDetails.CapacityLiters</MudText>
+        </MudCardContent>
+
+        <!-- Card Actions -->
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoBack">Back to List</MudButton>
+            <MudLink Href="@editLink">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
+            </MudLink>
+        </MudCardActions>
+    </MudCard>
+}
+
+
+
+@code 
+{
+    [Parameter]
+    public int BackpackId { get; set; }
+
+    private Backpack? backpackDetails;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_context == null)
+            throw new InvalidOperationException("Database context is not initialized.");
+
+        backpackDetails = await _context.Backpacks.FindAsync(BackpackId);
+        isLoading = false;
+    }
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/backpacks/list");
+    }
 
 }

@@ -16,50 +16,38 @@ else if (item == null)
 }
 else
 {
-    <EditForm Model="@item" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <MudForm Model="@item" OnValidSubmit="HandleValidSubmit">
+    <MudText Typo="Typo.h6">Edit Item</MudText>
+    <MudValidator />
+    
+    <!-- Name -->
+    <MudTextField T="string" Label="Name" For="@(() => item.Name)" Required="true" />
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Name:</label>
-            <InputText id="name" class="form-control" @bind-Value="item.Name" />
-        </div>
+    <!-- Description -->
+    <MudTextField T="string" Label="Description" For="@(() => item.Description)" Required="true" />
 
-        <div class="mb-3">
-            <label for="description" class="form-label">Description:</label>
-            <InputText id="description" class="form-control" @bind-Value="item.Description" />
-        </div>
+    <!-- Weight -->
+    <MudNumericField T="decimal" Label="Weight" For="@(() => item.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
 
-        <div class="mb-3">
-            <label for="weight" class="form-label">Weight:</label>
-            <InputNumber id="weight" class="form-control" @bind-Value="item.Weight" />
-        </div>
+    <!-- Picture URL -->
+    <MudTextField T="string" Label="Picture URL" For="@(() => item.PictureUrl)" />
 
-        <div class="mb-3">
-            <label for="pictureUrl" class="form-label">Picture URL:</label>
-            <InputText id="pictureUrl" class="form-control" @bind-Value="item.PictureUrl" />
-        </div>
+    <!-- Quantity -->
+    <MudNumericField T="int" Label="Quantity" For="@(() => item.Quantity)" />
 
-        <div class="mb-3">
-            <label for="quantity" class="form-label">Quantity:</label>
-            <InputNumber id="quantity" class="form-control" @bind-Value="item.Quantity" />
-        </div>
+    <!-- Subbag ID -->
+    <MudNumericField T="int" Label="Subbag ID" For="@(() => item.SubbagId)" />
 
-        <div class="mb-3">
-            <label for="subbagId" class="form-label">Subbag ID:</label>
-            <InputNumber id="subbagId" class="form-control" @bind-Value="item.SubbagId" />
-        </div>
+    <!-- Backpack ID -->
+    <MudNumericField T="int" Label="Backpack ID" For="@(() => item.BackpackId)" />
 
-        <div class="mb-3">
-            <label for="backpackId" class="form-label">Backpack ID:</label>
-            <InputNumber id="backpackId" class="form-control" @bind-Value="item.BackpackId" />
-        </div>
+    <!-- Buttons -->
+    <MudStack Direction="Row" JustifyContent="space-between">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Type="Submit">Save Changes</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+    </MudStack>
+</MudForm>
 
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-        </div>
-    </EditForm>
 }
 
 @code {
