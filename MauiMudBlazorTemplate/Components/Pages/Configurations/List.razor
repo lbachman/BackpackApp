@@ -1,5 +1,132 @@
-﻿<h3>List</h3>
+﻿@page "/configurations/list"
+@using System.Diagnostics
+@using MudBlazor
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@using Microsoft.EntityFrameworkCore
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
 
-@code {
+<h1>Backpack Configurations</h1>
 
+<button @onclick="ShowAddConfigForm">Add Configuration</button>
+<br />
+<br />
+
+@if (isAddFormVisible)
+{
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h5">Add New Configuration</MudText>
+        <MudForm Model="newConfiguration" @ref="form" Validated="HandleValidSubmit">
+            <MudTextField T="string" Label="Name" For="@(() => newConfiguration.Name)" Required="true" Immediate="true" />
+            <MudTextField T="string" Label="Description" For="@(() => newConfiguration.Description)" />
+            <MudDivider Class="my-2" />
+            <MudButtonGroup Class="d-flex justify-content-between">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Type="Submit">Add Configuration</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="HideAddConfigForm">Cancel</MudButton>
+            </MudButtonGroup>
+        </MudForm>
+    </MudPaper>
+}
+
+@if (BackpackConfigurations.Any())
+{
+    <MudGrid>
+        @foreach (var config in BackpackConfigurations)
+        {
+            var detailsLink = $"/configurations/details/{config.ConfigId}";
+            var editLink = $"/configurations/edit/{config.ConfigId}";
+            var deleteLink = $"/configurations/delete/{config.ConfigId}";
+
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Class="mb-4" Style="width: 18rem;">
+                    <!-- Clickable image -->
+                    <MudLink Href="@detailsLink">
+                        <MudCardMedia Image="" Alt="Configuration Image" Class="card-img-top" />
+                    </MudLink>
+
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">@config.Name</MudText>
+                            <MudText Typo="Typo.body2">@config.Description</MudText>
+                            <MudText Typo="Typo.body2">Created: @config.CreatedAt?.ToString("MMM dd, yyyy")</MudText>
+                        </MudCardContent>
+
+                        <MudCardActions>
+                            <MudButtonGroup>
+                                <MudLink Href="@editLink">
+                                    <MudButton Variant="Variant.Text" Color="Color.Secondary">
+                                        Edit
+                                    </MudButton>
+                                </MudLink>
+                                <MudLink Href="@deleteLink">
+                                    <MudButton Variant="Variant.Text" Color="Color.Error">
+                                        Delete
+                                    </MudButton>
+                                </MudLink>
+                            </MudButtonGroup>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <p>No configurations found.</p>
+}
+
+@code
+{
+    private MudForm form;
+    private List<BackpackConfiguration> BackpackConfigurations = new();
+    private BackpackConfiguration newConfiguration = new BackpackConfiguration();
+    private bool isAddFormVisible = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_context == null)
+            throw new InvalidOperationException("Database context is not initialized.");
+
+        BackpackConfigurations = await _context.BackpackConfigurations.ToListAsync();
+    }
+
+    private void ShowAddConfigForm() => isAddFormVisible = true;
+
+    private void HideAddConfigForm() => isAddFormVisible = false;
+
+    private async Task HandleValidSubmit()
+    {
+        if (form == null || !form.IsValid)
+        {
+            Debug.WriteLine("Form is not valid.");
+            return;
+        }
+
+        if (_context != null)
+        {
+            try
+            {
+                Debug.WriteLine($"Name: {newConfiguration.Name}");
+
+                if (string.IsNullOrWhiteSpace(newConfiguration.Name))
+                {
+                    Debug.WriteLine("Error: Name field is required.");
+                    return;
+                }
+
+                newConfiguration.BackpackId = 1; // Set a default BackpackId (adjust as needed)
+                newConfiguration.CreatedAt = DateTime.Now;
+
+                _context.BackpackConfigurations.Add(newConfiguration);
+                await _context.SaveChangesAsync();
+
+                BackpackConfigurations.Add(newConfiguration);
+                newConfiguration = new BackpackConfiguration();
+                isAddFormVisible = false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving configuration: {ex.Message}");
+            }
+        }
+    }
 }

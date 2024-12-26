@@ -1,4 +1,11 @@
-﻿<h3>Details</h3>
+﻿@page "/configurations/details/{ConfigId:int}"
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+@inject NavigationManager NavManager
+
+
+<h3>Details</h3>
 
 @code {
 

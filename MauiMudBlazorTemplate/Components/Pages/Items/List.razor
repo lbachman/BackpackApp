@@ -1,4 +1,5 @@
 ﻿@page "/items/list"
+@using System.Diagnostics
 @using MudBlazor
 @using MauiMudBlazor.Entities
 @using MauiMudBlazor.Contexts
@@ -8,54 +9,28 @@
 
 <h1>View Items</h1>
 <h4>Items</h4>
-
-<button @onclick="ShowAddItemForm">Add Item</button>
+<MudButton OnClick="ShowAddItemForm" Variant="Variant.Filled" Color="Color.Primary">Add Item</MudButton>
 <br />
 <br />
 
 @if (isAddFormVisible)
 {
-    <div class="mb-4">
-        <h5>Add New Item</h5>
-        <EditForm Model="newItem" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="mb-3">
-                <label for="name" class="form-label">Name:</label>
-                <InputText id="name" class="form-control" @bind-Value="newItem.Name" />
-            </div>
-
-            <div class="mb-3">
-                <label for="description" class="form-label">Description:</label>
-                <InputText id="description" class="form-control" @bind-Value="newItem.Description" />
-            </div>
-
-            <div class="mb-3">
-                <label for="weight" class="form-label">Weight:</label>
-                <InputNumber id="weight" class="form-control" @bind-Value="newItem.Weight" />
-            </div>
-
-            <div class="mb-3">
-                <label for="quantity" class="form-label">Quantity:</label>
-                <InputNumber id="quantity" class="form-control" @bind-Value="newItem.Quantity" />
-            </div>
-
-            <div class="mb-3">
-                <label for="pictureUrl" class="form-label">Picture URL:</label>
-                <InputText id="pictureUrl" class="form-control" @bind-Value="newItem.PictureUrl" />
-            </div>
-
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Add Item</button>
-                <button type="button" class="btn btn-secondary" @onclick="HideAddItemForm">Cancel</button>
-            </div>
-        </EditForm>
-    </div>
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h5">Add New Item</MudText>
+        <MudForm @ref="mudForm" Validate="@HandleValidSubmit()">
+            <MudTextField @bind-Value="newItem.Name" Label="Item Name" Required="true" />
+            <MudNumericField @bind-Value="newItem.Weight" Label="Weight" Required="true" />
+            <MudTextField @bind-Value="newItem.Description" Label="Description" />
+            <br>
+            <br>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info" Size="Size.Small" Type="Submit">Add Item</MudButton>
+            <br>
+            <MudButton Variant="Variant.Filled"  OnClick="HideAddItemForm">Cancel</MudButton>
+        </MudForm>
+    </MudPaper>
+    <br>
+    <br>
 }
-
-
-
 
 
 
@@ -86,14 +61,10 @@
                         <MudCardActions>
                             <MudButtonGroup>
                                 <MudLink Href="@editLink">
-                                    <MudButton Variant="Variant.Text" Color="Color.Secondary">
-                                        Edit
-                                    </MudButton>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
                                 <MudLink Href="@deleteLink">
-                                    <MudButton Variant="Variant.Text" Color="Color.Error">
-                                        Delete
-                                    </MudButton>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
                             </MudButtonGroup>
                         </MudCardActions>
@@ -102,7 +73,6 @@
                 </MudItem>
         }
     </MudGrid>
-
 }
 
 else
@@ -115,9 +85,13 @@ else
 
 @code 
 {
-    private List<Item> Items = new();
     private Item newItem = new Item();
+    private MudForm? mudForm;
+    private List<Item> Items = new();
+    private bool hasErrors = false;
     private bool isAddFormVisible = false;
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -129,8 +103,9 @@ else
 
     }
 
-    private void ShowAddItemForm() => isAddFormVisible = true;
 
+
+    private void ShowAddItemForm() => isAddFormVisible = true;
     private void HideAddItemForm() => isAddFormVisible = false;
 
 
@@ -138,18 +113,32 @@ else
     {
         if (_context != null)
         {
-            newItem.BackpackId = 1;
-            newItem.CreatedAt = DateTime.Now;
-            newItem.InBag = false;
-            _context.Items.Add(newItem);
-            await _context.SaveChangesAsync();
-            Items.Add(newItem); // Add to the list to update the UI
-            newItem = new Item(); // Reset form fields
-            isAddFormVisible = false; // Hide form after submission
+            try
+            {
+                newItem.BackpackId = 1;
+                newItem.CreatedAt = DateTime.Now;
+                newItem.InBag = false;
+                _context.Items.Add(newItem);
+                await _context.SaveChangesAsync();
+
+
+                Items.Add(newItem);
+                newItem = new Item(); // Reset the form
+                isAddFormVisible = false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving item: {ex.Message}");
+            }
         }
     }
 
 
-    //private void AddItem() => NavManager.NavigateTo("/add-product");
+    private void HandleInvalidSubmit()
+    {
+        hasErrors = true;
+        Debug.WriteLine("Validation failed.");
+        Debug.WriteLine($"Validation failed: {string.Join(", ", mudForm?.Errors.ToList() ?? new List<string>())}");
+    }
 
 }
