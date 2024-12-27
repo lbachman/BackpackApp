@@ -39,7 +39,15 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
 
-	
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Raw\AboutAssets.txt">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<AndroidResource Include="Resources\Raw\BackpackSQLite.db">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</AndroidResource>
+	</ItemGroup>
 	
 	
 	
@@ -80,6 +88,7 @@
 	
 	<ItemGroup>
 	  <MauiAsset Remove="Resources\Raw\AboutAssets.txt" />
+	  <MauiAsset Remove="Resources\Raw\BackpackSQLite.db" />
 	</ItemGroup>
 
 
@@ -96,13 +105,7 @@
 	
 	
 	
-	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Raw\AboutAssets.txt" />
-	  <EmbeddedResource Include="Resources\Raw\BackpackSQLite.db">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	    <LogicalName>Resources/Raw/BackpackSQLite.db</LogicalName>
-	  </EmbeddedResource>
-	</ItemGroup>
+	
 
 
 	
