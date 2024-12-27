@@ -74,15 +74,35 @@
 	  <None Remove="Entities - Copy\**" />
 	</ItemGroup>
 
+	
+	
+	
+	
+	<ItemGroup>
+	  <MauiAsset Remove="Resources\Raw\AboutAssets.txt" />
+	</ItemGroup>
+
 
 	
 	
 	
 	
 	<ItemGroup>
-      <!-- <None Remove="Resources\Raw\BackpackSQLite.db" />  -->
       <None Remove="Resources\Splash\splash.png" />
     </ItemGroup>
+
+
+	
+	
+	
+	
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Raw\AboutAssets.txt" />
+	  <EmbeddedResource Include="Resources\Raw\BackpackSQLite.db">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <LogicalName>Resources/Raw/BackpackSQLite.db</LogicalName>
+	  </EmbeddedResource>
+	</ItemGroup>
 
 
 	
@@ -109,16 +129,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.100" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="MudBlazor" Version="7.15.0" />
-	</ItemGroup>
-
-	
-	
-	<ItemGroup>
-		<MauiAsset Update="Resources\Raw\BackpackSQLite.db">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<!-- Optional: Set a logical name for accessing it -->
-			<LogicalName>Resources/Raw/BackpackSQLite.db</LogicalName>	  
-		</MauiAsset>
 	</ItemGroup>
 
 </Project>

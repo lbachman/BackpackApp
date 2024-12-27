@@ -6,26 +6,41 @@
 @using Microsoft.EntityFrameworkCore
 @inject MauiMudBlazor.Contexts.BackpackAppContext _context
 
-<h1>Backpack Configurations</h1>
-
-<button @onclick="ShowAddConfigForm">Add Configuration</button>
+<h1>View Configurations</h1>
+<h4>Backpack Configurations</h4>
+<MudButton OnClick="ShowAddConfigForm" Variant="Variant.Filled" Color="Color.Primary">Add Configuration</MudButton>
 <br />
 <br />
 
 @if (isAddFormVisible)
 {
-    <MudPaper Class="pa-4">
-        <MudText Typo="Typo.h5">Add New Configuration</MudText>
-        <MudForm Model="newConfiguration" @ref="form" Validated="HandleValidSubmit">
-            <MudTextField T="string" Label="Name" For="@(() => newConfiguration.Name)" Required="true" Immediate="true" />
-            <MudTextField T="string" Label="Description" For="@(() => newConfiguration.Description)" />
-            <MudDivider Class="my-2" />
-            <MudButtonGroup Class="d-flex justify-content-between">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Type="Submit">Add Configuration</MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="HideAddConfigForm">Cancel</MudButton>
-            </MudButtonGroup>
-        </MudForm>
-    </MudPaper>
+    <EditForm Model="@newConfiguration" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="backpackId">Backpack Id</label>
+            <InputNumber id="backpackId" class="form-control" @bind-Value="newConfiguration.BackpackId" />
+            <ValidationMessage For="@(() => newConfiguration.BackpackId)" />
+        </div>
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="newConfiguration.Name" />
+            <ValidationMessage For="@(() => newConfiguration.Name)" />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <InputText id="description" class="form-control" @bind-Value="newConfiguration.Description" />
+            <ValidationMessage For="@(() => newConfiguration.Description)" />
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Add Configuration</button>
+            <button type="button" class="btn btn-secondary" @onclick="HideAddConfigForm">Cancel</button>
+        </div>
+    </EditForm>
 }
 
 @if (BackpackConfigurations.Any())
@@ -53,14 +68,10 @@
                         <MudCardActions>
                             <MudButtonGroup>
                                 <MudLink Href="@editLink">
-                                    <MudButton Variant="Variant.Text" Color="Color.Secondary">
-                                        Edit
-                                    </MudButton>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
                                 <MudLink Href="@deleteLink">
-                                    <MudButton Variant="Variant.Text" Color="Color.Error">
-                                        Delete
-                                    </MudButton>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
                             </MudButtonGroup>
                         </MudCardActions>
@@ -94,38 +105,24 @@ else
     private void HideAddConfigForm() => isAddFormVisible = false;
 
     private async Task HandleValidSubmit()
-    {
-        if (form == null || !form.IsValid)
-        {
-            Debug.WriteLine("Form is not valid.");
-            return;
-        }
+    {      
 
         if (_context != null)
         {
             try
             {
-                Debug.WriteLine($"Name: {newConfiguration.Name}");
-
-                if (string.IsNullOrWhiteSpace(newConfiguration.Name))
-                {
-                    Debug.WriteLine("Error: Name field is required.");
-                    return;
-                }
-
-                newConfiguration.BackpackId = 1; // Set a default BackpackId (adjust as needed)
                 newConfiguration.CreatedAt = DateTime.Now;
-
                 _context.BackpackConfigurations.Add(newConfiguration);
                 await _context.SaveChangesAsync();
 
+
                 BackpackConfigurations.Add(newConfiguration);
-                newConfiguration = new BackpackConfiguration();
+                newConfiguration = new BackpackConfiguration(); // Reset the form
                 isAddFormVisible = false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving configuration: {ex.Message}");
+                Debug.WriteLine($"Error saving item: {ex.Message}");
             }
         }
     }

@@ -7,6 +7,7 @@
 @inject MauiMudBlazor.Contexts.BackpackAppContext _context
 @inject NavigationManager NavManager
 
+
 <h1>View Items</h1>
 <h4>Items</h4>
 <MudButton OnClick="ShowAddItemForm" Variant="Variant.Filled" Color="Color.Primary">Add Item</MudButton>
@@ -15,26 +16,45 @@
 
 @if (isAddFormVisible)
 {
-    <MudPaper Class="pa-4">
-        <MudText Typo="Typo.h5">Add New Item</MudText>
-        <MudForm @ref="mudForm" Validate="@HandleValidSubmit()">
-            <MudTextField @bind-Value="newItem.Name" Label="Item Name" Required="true" />
-            <MudNumericField @bind-Value="newItem.Weight" Label="Weight" Required="true" />
-            <MudTextField @bind-Value="newItem.Description" Label="Description" />
-            <br>
-            <br>
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info" Size="Size.Small" Type="Submit">Add Item</MudButton>
-            <br>
-            <MudButton Variant="Variant.Filled"  OnClick="HideAddItemForm">Cancel</MudButton>
-        </MudForm>
-    </MudPaper>
-    <br>
-    <br>
+    <EditForm Model="@newItem" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="newItem.Name" />
+            <ValidationMessage For="@(() => newItem.Name)" />
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <InputText id="description" class="form-control" @bind-Value="newItem.Description" />
+            <ValidationMessage For="@(() => newItem.Description)" />
+        </div>
+
+        <div class="form-group">
+            <label for="weight">Weight</label>
+            <InputNumber id="weight" class="form-control" @bind-Value="newItem.Weight" />
+            <ValidationMessage For="@(() => newItem.Weight)" />
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <InputNumber id="quantity" class="form-control" @bind-Value="newItem.Quantity" />
+            <ValidationMessage For="@(() => newItem.Quantity)" />
+        </div>
+
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Add Item</button>
+            <button type="button" class="btn btn-secondary" @onclick="HideAddItemForm">Cancel</button>
+        </div>
+    </EditForm>
 }
 
 
 
-
+@* display all the items *@
 @if (Items.Any())
 {
     <MudGrid>
@@ -90,6 +110,10 @@ else
     private List<Item> Items = new();
     private bool hasErrors = false;
     private bool isAddFormVisible = false;
+    bool success; 
+    string[] errors = { };
+    MudTextField<string> pwField1; 
+    MudForm? form;
 
 
 
@@ -99,16 +123,22 @@ else
         if (_context == null)
             throw new InvalidOperationException("Database context is not initialized.");
 
+
+        // get all items
         Items = await _context.Items.ToListAsync();    
 
     }
 
 
-
+    // show and hide add item form 
     private void ShowAddItemForm() => isAddFormVisible = true;
     private void HideAddItemForm() => isAddFormVisible = false;
 
 
+    /// <summary>
+    /// triggered when user submits add item form
+    /// </summary>
+    /// <returns></returns>
     private async Task HandleValidSubmit()
     {
         if (_context != null)
@@ -128,10 +158,11 @@ else
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving item: {ex.Message}");
+                Debug.WriteLine($"Error saving item: {ex.Message}");
             }
         }
     }
+
 
 
     private void HandleInvalidSubmit()

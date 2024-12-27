@@ -10,8 +10,10 @@
 
 <h1>View Backpacks</h1>
 <h4>Backpacks</h4>
+<MudButton OnClick="ShowAddBackpackForm" Variant="Variant.Filled" Color="Color.Primary">Add Backpack</MudButton>
 <br />
 <br />
+
 
 @if (isAddFormVisible)
 {
@@ -75,14 +77,10 @@
                         <MudCardActions>
                             <MudButtonGroup>
                                 <MudLink Href="@editLink">
-                                    <MudButton Variant="Variant.Text" Color="Color.Secondary">
-                                        Edit
-                                    </MudButton>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
                                 <MudLink Href="@deleteLink">
-                                    <MudButton Variant="Variant.Text" Color="Color.Error">
-                                        Delete
-                                    </MudButton>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
                             </MudButtonGroup>
                         </MudCardActions>
