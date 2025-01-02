@@ -5,10 +5,9 @@ using MauiMudBlazor.Contexts;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Storage;
+#if ANDROID
 using Android.Content;
-using Microsoft.Maui.Storage;
-using System.IO;
-using Microsoft.Maui.Controls.PlatformConfiguration;
+#endif
 
 namespace MauiMudBlazor
 {
@@ -28,8 +27,11 @@ namespace MauiMudBlazor
             builder.Services.AddSingleton<EventHandleHelper>();
             builder.Services.AddSingleton<BackpackAppContext>();
 
+            string dbPath;
 
-            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "BackpackSQLite.db");
+#if ANDROID
+
+            dbPath = Path.Combine(FileSystem.AppDataDirectory, "BackpackSQLite.db");
 
             // Check if the database already exists
             if (!File.Exists(dbPath))
@@ -40,6 +42,28 @@ namespace MauiMudBlazor
                     rawStream.CopyTo(fileStream);
                 }
             }
+
+#elif WINDOWS
+            // Windows-specific database configuration
+            dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BackpackSQLite.db");
+
+            // Check if the database already exists
+            if (!File.Exists(dbPath))
+            {
+                // For Windows, you might copy a file from a known location like a project's resources folder
+                string sourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "BackpackSQLite.db");
+                File.Copy(sourcePath, dbPath);
+            }
+#else
+            throw new PlatformNotSupportedException("Unsupported platform for database configuration.");
+#endif
+
+
+
+
+
+
+
 
             Debug.WriteLine($"Database Path: {dbPath}");
 

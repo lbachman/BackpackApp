@@ -59,7 +59,6 @@ else
 
 
 <h1>Configuration Items</h1>
-@* display items in the configuration*@
 @if (configItems.Any())
 {
     <MudGrid>
@@ -69,53 +68,46 @@ else
             var editLink = $"/items/edit/{item.ItemId}";
             var deleteLink = $"/items/delete/{item.ItemId}";
 
-
-            // grab coressponding item to configuration item
+            // grab corresponding item to configuration item
             Item? item2Add = _context.Items.FirstOrDefault(x => x.ItemId == item.ItemId);
 
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Class="mb-2" Style="width: 18rem;">
+            <MudItem xs="6" sm="6" md="4"> <!-- Set xs=6 for 2 cards per row on small screens -->
+                <MudCard Class="mb-2" Style="width: 100%;"> <!-- Adjusted width for better scaling -->
                     <!-- Clickable image -->
                     <MudLink Href="@detailsLink">
-                       @*  <MudCardMedia Image="" Alt="Item Image" Class="img-fluid" /> *@
+                        <!-- Add your image source here -->
                     </MudLink>
 
                     <MudCardContent>
-                        <MudText Typo="Typo.h5">@item.Item.Name</MudText>
-                            <MudText Typo="Typo.body2">Weight: @item.Item.Weight</MudText>
-                        </MudCardContent>
+                        <MudText Typo="Typo.h6" Class="truncate-text">@item.Item.Name</MudText> <!-- Shrink text -->
+                        <MudText Typo="Typo.body2">Weight: @item.Item.Weight</MudText>
+                    </MudCardContent>
 
-                        <MudCardActions>
-                            <!-- Stack the actions vertically -->
-                            <MudStack Spacing="2">
-                                <!-- Toggle InBag Button -->
-                                <MudButton OnClick="() => ToggleBag(item2Add)" FullWidth>
-                             Toggle InBag
-                         </MudButton>
+                    <MudCardActions>
+                        <MudStack Spacing="2">
+                            <!-- Toggle InBag Button -->
+                            <MudButton OnClick="() => ToggleBag(item2Add)" FullWidth>
+                                Toggle InBag
+                            </MudButton>
 
-                         <!-- Display InBag status -->
-                         <MudText Typo="Typo.body2" Align="Align.Center">
-                             @(item.InBag == true ? "In Bag" : "Not In Bag")
-                         </MudText>
+                            <!-- Display InBag status -->
+                            <MudText Typo="Typo.body2" Align="Align.Center">
+                                @(item.InBag == true ? "In Bag" : "Not In Bag")
+                            </MudText>
 
-                         <!-- Remove from Config Button -->
-                         <MudButton OnClick="@(() => RemoveFromConfig(item.ItemId))" Color="Color.Error" FullWidth>
-                             Remove from Config
-                         </MudButton>
-
-                         
-                     </MudStack>
-                 </MudCardActions>
-
-
-                    </MudCard>
-                </MudItem>
+                            <!-- Remove from Config Button -->
+                            <MudButton OnClick="@(() => RemoveFromConfig(item.ItemId))" Color="Color.Error" FullWidth>
+                                Remove from Config
+                            </MudButton>
+                        </MudStack>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
         }
     </MudGrid>
-
-    
 }
-<br>
+
+
 
 
 
@@ -128,7 +120,6 @@ else
 
 
 <h1>All Items</h1>
-@* display all the items *@
 @if (Items.Any())
 {
     <MudGrid>
@@ -138,28 +129,28 @@ else
             var editLink = $"/items/edit/{item.ItemId}";
             var deleteLink = $"/items/delete/{item.ItemId}";
 
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Class="mb-4" Style="width: 18rem;">
+            <MudItem xs="6" sm="6" md="4"> <!-- Set xs=6 for 2 cards per row on small screens -->
+                <MudCard Class="mb-4" Style="width: 100%;"> <!-- Adjusted width for better scaling -->
                     <!-- Clickable image -->
                     <MudLink Href="@detailsLink">
-                      @*   <MudCardMedia Image="" Alt="Item Image" Class="card-img-top" /> *@
+                        <!-- Add your image source here -->
                     </MudLink>
 
                     <MudCardContent>
-                        <MudText Typo="Typo.h5">@item.Name</MudText>
-                            <MudText Typo="Typo.body2">@item.Description</MudText>
-                            <MudText Typo="Typo.body2">Weight: @item.Weight</MudText>
-                            <MudText Typo="Typo.body2">@item.Quantity</MudText>
-                            <!-- Add button -->
-                            <MudButton Color="Color.Primary" OnClick="@(() => Add2Config(@item.ItemId))">Add</MudButton>
+                        <MudText Typo="Typo.h6" Class="truncate-text">@item.Name</MudText> <!-- Shrink text -->
+                        <MudText Typo="Typo.body2">@item.Description</MudText>
+                        <MudText Typo="Typo.body2">Weight: @item.Weight</MudText>
+                        <MudText Typo="Typo.body2">Quantity: @item.Quantity</MudText>
 
-                        </MudCardContent>                       
-
-                    </MudCard>
-                </MudItem>
+                        <!-- Add button -->
+                        <MudButton Color="Color.Primary" OnClick="@(() => Add2Config(@item.ItemId))">Add</MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
         }
     </MudGrid>
 }
+
 
 
 
