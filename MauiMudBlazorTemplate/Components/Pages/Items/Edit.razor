@@ -26,19 +26,19 @@ else
     <MudTextField T="string" Text="@item.Name" @bind-Value="item.Name" Label="Item Name" For="@(() => item.Name)" Required="true" />
 
     <!-- Description -->
-            <MudTextField T="string" Text="@item.Description" @bind-Value="item.Description" Label="Item Description" For="@(() => item.Description)" Required="true" />
+    <MudTextField T="string" Text="@item.Description" @bind-Value="item.Description" Label="Item Description" For="@(() => item.Description)" Required="true" />
 
     <!-- Weight -->
-            <MudNumericField T="double" Text="@item.Weight.ToString()" @bind-Value="item.Weight" Label="Item Weight" For="@(() => item.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
+    <MudNumericField T="double" Text="@item.Weight.ToString()" @bind-Value="item.Weight" Label="Item Weight" For="@(() => item.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
 
     <!-- Quantity -->
-            <MudNumericField T="int?" Text="@item.Quantity.ToString()" @bind-Value="item.Quantity" Label="Item Quantity" For="@(() => item.Quantity)" />
+    <MudNumericField T="int?" Text="@item.Quantity.ToString()" @bind-Value="item.Quantity" Label="Item Quantity" For="@(() => item.Quantity)" />
 
     <!-- Subbag ID -->
-            <MudNumericField T="int?" Text="@item.SubbagId.ToString()" @bind-Value="item.SubbagId" Label="Subbag ID" For="@(() => item.SubbagId)" />
+    <MudNumericField T="int?" Text="@item.SubbagId.ToString()" @bind-Value="item.SubbagId" Label="Subbag ID" For="@(() => item.SubbagId)" />
 
     <!-- Backpack ID -->
-            <MudNumericField T="int" Text="@item.BackpackId.ToString()" @bind-Value="item.BackpackId" Label="Backpack ID" For="@(() => item.BackpackId)" />
+    <MudNumericField T="int" Text="@item.BackpackId.ToString()" @bind-Value="item.BackpackId" Label="Backpack ID" For="@(() => item.BackpackId)" />
 
     <!-- Buttons -->
     <MudStack Direction="Row" JustifyContent="space-between">

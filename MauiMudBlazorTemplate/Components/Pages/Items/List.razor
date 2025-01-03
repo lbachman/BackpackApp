@@ -16,40 +16,35 @@
 
 @if (isAddFormVisible)
 {
-    <EditForm Model="@newItem" OnValidSubmit="@HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <MudForm Model="@form">
 
-        <div class="form-group">
-            <label for="name">Name</label>
-            <InputText id="name" class="form-control" @bind-Value="newItem.Name" />
-            <ValidationMessage For="@(() => newItem.Name)" />
-        </div>
+        <MudText Typo="Typo.h6">Add New Item</MudText>
 
-        <div class="form-group">
-            <label for="description">Description</label>
-            <InputText id="description" class="form-control" @bind-Value="newItem.Description" />
-            <ValidationMessage For="@(() => newItem.Description)" />
-        </div>
+        <!-- Name -->
+        <MudTextField T="string" @bind-Value="newItem.Name" Label="Item Name" For="@(() => newItem.Name)" Required="true" />
 
-        <div class="form-group">
-            <label for="weight">Weight</label>
-            <InputNumber id="weight" class="form-control" @bind-Value="newItem.Weight" />
-            <ValidationMessage For="@(() => newItem.Weight)" />
-        </div>
+        <!-- Description -->
+        <MudTextField T="string"  @bind-Value="newItem.Description" Label="Item Description" For="@(() => newItem.Description)" Required="true" />
 
-        <div class="form-group">
-            <label for="quantity">Quantity</label>
-            <InputNumber id="quantity" class="form-control" @bind-Value="newItem.Quantity" />
-            <ValidationMessage For="@(() => newItem.Quantity)" />
-        </div>
+        <!-- Weight -->
+        <MudNumericField T="double"  @bind-Value="newItem.Weight" Label="Item Weight" For="@(() => newItem.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
 
+        <!-- Quantity -->
+        <MudNumericField T="int?"  @bind-Value="newItem.Quantity" Label="Item Quantity" For="@(() => newItem.Quantity)" />
 
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Add Item</button>
-            <button type="button" class="btn btn-secondary" @onclick="HideAddItemForm">Cancel</button>
-        </div>
-    </EditForm>
+        <!-- Subbag ID -->
+        <MudNumericField T="int?"  @bind-Value="newItem.SubbagId" Label="Subbag ID" For="@(() => newItem.SubbagId)" />
+
+        <!-- Backpack ID -->
+        <MudNumericField T="int"  @bind-Value="newItem.BackpackId" Label="Backpack ID" For="@(() => newItem.BackpackId)" />
+
+        <!-- Buttons -->
+        <MudStack Direction="Row" JustifyContent="space-between">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleValidSubmit">Save Changes</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="HideAddItemForm">Cancel</MudButton>
+        </MudStack>
+
+    </MudForm>
 }
 
 
@@ -106,14 +101,10 @@ else
 @code 
 {
     private Item newItem = new Item();
-    private MudForm? mudForm;
+    private MudForm? form;
     private List<Item> Items = new();
     private bool hasErrors = false;
     private bool isAddFormVisible = false;
-    bool success; 
-    string[] errors = { };
-    MudTextField<string> pwField1; 
-    MudForm? form;
 
 
 
@@ -167,9 +158,7 @@ else
 
     private void HandleInvalidSubmit()
     {
-        hasErrors = true;
-        Debug.WriteLine("Validation failed.");
-        Debug.WriteLine($"Validation failed: {string.Join(", ", mudForm?.Errors.ToList() ?? new List<string>())}");
+        
     }
 
 }
