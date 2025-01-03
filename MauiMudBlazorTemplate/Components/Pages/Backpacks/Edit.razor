@@ -1,4 +1,4 @@
-﻿@* @page "/backpacks/edit/{id:int}"
+﻿@page "/backpacks/edit/{id:int}"
 @using MauiMudBlazor.Entities
 @using Microsoft.EntityFrameworkCore
 @inject NavigationManager NavManager
@@ -16,50 +16,38 @@ else if (backpack == null)
 }
 else
 {
-    <EditForm Model="@backpack" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <!-- Add Backpack Form -->
+    <MudForm Model="@form">
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Name:</label>
-            <InputText id="name" class="form-control" @bind-Value="item.Name" />
-        </div>
+        <!--Heading -->
+        <MudText Typo="Typo.h6">@backpack.Name</MudText>
 
-        <div class="mb-3">
-            <label for="description" class="form-label">Description:</label>
-            <InputText id="description" class="form-control" @bind-Value="item.Description" />
-        </div>
+        <!-- Name -->
+        <MudTextField T="string" @bind-Value="backpack.Name"  Text="@backpack.Name" Label="Backpack Name" For="@(() => backpack.Name)" Required="true" />
 
-        <div class="mb-3">
-            <label for="weight" class="form-label">Weight:</label>
-            <InputNumber id="weight" class="form-control" @bind-Value="item.Weight" />
-        </div>
+        <!-- Description -->
+        <MudTextField T="string" @bind-Value="backpack.Description" Text="@backpack.Description" Label="Backpack Description" For="@(() => backpack.Description)" Required="true" />
 
-        <div class="mb-3">
-            <label for="pictureUrl" class="form-label">Picture URL:</label>
-            <InputText id="pictureUrl" class="form-control" @bind-Value="item.PictureUrl" />
-        </div>
+        <!-- Weight -->
+        <MudNumericField T="double?" @bind-Value="backpack.Weight" Text="@backpack.Weight.ToString()" Label="Backpack Weight" For="@(() => backpack.Weight)" Adornment="Adornment.Start" AdornmentText="lbs" />
 
-        <div class="mb-3">
-            <label for="quantity" class="form-label">Quantity:</label>
-            <InputNumber id="quantity" class="form-control" @bind-Value="item.Quantity" />
-        </div>
+        <!-- Name -->
+        <MudTextField T="int" @bind-Value="backpack.CapacityLiters" Text="@backpack.CapacityLiters.ToString()" Label="Capacity (liters)" For="@(() => backpack.CapacityLiters)" Required="true" />
 
-        <div class="mb-3">
-            <label for="subbagId" class="form-label">Subbag ID:</label>
-            <InputNumber id="subbagId" class="form-control" @bind-Value="item.SubbagId" />
-        </div>
 
-        <div class="mb-3">
-            <label for="backpackId" class="form-label">Backpack ID:</label>
-            <InputNumber id="backpackId" class="form-control" @bind-Value="item.BackpackId" />
-        </div>
+        <!-- Buttons -->
+        <MudStack Direction="Row" JustifyContent="space-between">
 
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-        </div>
-    </EditForm>
+            <!-- Submit -->
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleValidSubmit">Save Changes</MudButton>
+
+            <!-- Cancel -->
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+
+        </MudStack>
+
+    </MudForm>
+    
 }
 
 @code {
@@ -68,6 +56,7 @@ else
 
     private Backpack? backpack;
     private bool isLoading = true;
+    private MudForm form;
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,7 +66,7 @@ else
             if (_context == null)
                 throw new InvalidOperationException("Database context is not initialized.");
 
-            item = await _context.Backpacks.FirstOrDefaultAsync(i => i.BackpackId == id);
+            backpack = await _context.Backpacks.FirstOrDefaultAsync(i => i.BackpackId == id);
         }
         catch (Exception ex)
         {
@@ -95,7 +84,7 @@ else
         {
             try
             {
-                _context.Backpacks.Update(item);
+                _context.Backpacks.Update(backpack);
                 await _context.SaveChangesAsync();
                 NavManager.NavigateTo("/backpacks/list"); // Redirect to items list
             }
@@ -111,4 +100,3 @@ else
         NavManager.NavigateTo("/backpacks/list"); // Redirect to items list
     }
 }
- *@

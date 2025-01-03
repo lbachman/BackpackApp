@@ -17,42 +17,42 @@
 
 @if (isAddFormVisible)
 {
-    <div class="mb-4">
-        <h5>Add New Backpack</h5>
-        <EditForm Model="newBackpack" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+    <!-- Add Backpack Form -->
+    <MudForm Model="@form">
+        
+        <!--Heading -->
+        <MudText Typo="Typo.h6">Add New Backpack</MudText>
 
-            <div class="mb-3">
-                <label for="name" class="form-label">Name:</label>
-                <InputText id="name" class="form-control" @bind-Value="newBackpack.Name" />
-            </div>
+        <!-- Name -->
+        <MudTextField T="string" @bind-Value="newBackpack.Name" Label="Backpack Name" For="@(() => newBackpack.Name)" Required="true" />
 
-            <div class="mb-3">
-                <label for="weight" class="form-label">Weight:</label>
-                <InputNumber id="weight" class="form-control" @bind-Value="newBackpack.Weight" />
-            </div>
+        <!-- Description -->
+        <MudTextField T="string" @bind-Value="newBackpack.Description" Label="Backpack Description" For="@(() => newBackpack.Description)" Required="true" />
 
-            <div class="mb-3">
-                <label for="CapacityLiters" class="form-label">Capacity(liters):</label>
-                <InputNumber id="CapacityLiters" class="form-control" @bind-Value="newBackpack.CapacityLiters" />
-            </div>
+        <!-- Weight -->
+        <MudNumericField T="double?" @bind-Value="newBackpack.Weight" Label="Backpack Weight" For="@(() => newBackpack.Weight)" Adornment="Adornment.Start" AdornmentText="lbs" />
 
-            <div class="mb-3">
-                <label for="description" class="form-label">Description:</label>
-                <InputText id="description" class="form-control" @bind-Value="newBackpack.Description" />
-            </div>
+        <!-- Name -->
+        <MudTextField T="int" @bind-Value="newBackpack.CapacityLiters" Label="Capacity (liters)" For="@(() => newBackpack.CapacityLiters)" Required="true" />
 
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Add Backpack</button>
-                <button type="button" class="btn btn-secondary" @onclick="HideAddBackpackForm">Cancel</button>
-            </div>
-        </EditForm>
-    </div>
+
+        <!-- Buttons -->
+        <MudStack Direction="Row" JustifyContent="space-between">
+
+            <!-- Submit -->
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleValidSubmit">Save Changes</MudButton>
+
+            <!-- Cancel -->
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="HideAddBackpackForm">Cancel</MudButton>
+
+        </MudStack>
+
+    </MudForm> 
 }
 
 @if (Backpacks.Any())
 {
+    <!--Display All Backpacks-->
     <MudGrid>
         @foreach (var pack in Backpacks)
         {
@@ -62,11 +62,13 @@
 
             <MudItem xs="12" sm="6" md="4">
                 <MudCard Class="mb-4" Style="width: 18rem;">
+
                     <!-- Clickable image -->
                     <MudLink Href="@detailsLink">
                         <MudCardMedia Image="" Alt="Backpack Image" Class="card-img-top" />
                     </MudLink>
 
+                    <!--Backpack Details-->
                     <MudCardContent>
                         <MudText Typo="Typo.h5">@pack.Name</MudText>
                             <MudText Typo="Typo.body2">@pack.CapacityLiters</MudText>
@@ -105,9 +107,10 @@ else
 
 @code 
 {
-	private List<Backpack> Backpacks = new();
-	private Backpack newBackpack = new Backpack();
-	private bool isAddFormVisible = false;
+    private List<Backpack> Backpacks = new();
+    private Backpack newBackpack = new Backpack();
+    private bool isAddFormVisible = false;
+    private MudForm form;
 
 
     protected override async Task OnInitializedAsync()
