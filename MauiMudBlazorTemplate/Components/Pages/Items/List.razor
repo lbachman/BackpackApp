@@ -55,31 +55,35 @@
     <MudGrid>
         @foreach (var item in Items)
         {
+            <!-- Path Variables-->
             var detailsLink = $"/items/details/{item.ItemId}";
             var editLink = $"/items/edit/{item.ItemId}";
             var deleteLink = $"/items/delete/{item.ItemId}";
 
             <MudItem xs="12" sm="6" md="4">
                 <MudCard Class="mb-4" Style="width: 18rem;">
-                    <!-- Clickable image -->
+
+                    <!-- Clickable Image Link -->
                     <MudLink Href="@detailsLink">
                         <MudCardMedia Image="" Alt="Item Image" Class="card-img-top" />
                     </MudLink>
 
+                    <!-- Item Details-->
                     <MudCardContent>
                         <MudText Typo="Typo.h5">@item.Name</MudText>
                             <MudText Typo="Typo.body2">@item.Description</MudText>
-                            <MudText Typo="Typo.body2">Weight: @item.Weight</MudText>
-                            <MudText Typo="Typo.body2">@item.Quantity</MudText>
+                            <MudText Typo="Typo.body2">Weight: @item.Weight lbs</MudText>
+                            <MudText Typo="Typo.body2">Quantity: @item.Quantity</MudText>
                         </MudCardContent>
 
+                        <!-- Button Links-->
                         <MudCardActions>
                             <MudButtonGroup>
                                 <MudLink Href="@editLink">
                                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
                                 <MudLink Href="@deleteLink">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Large" />
                                 </MudLink>
                             </MudButtonGroup>
                         </MudCardActions>
