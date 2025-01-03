@@ -25,24 +25,19 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudText Typo="Typo.body1">Empty Pack Weight: </MudText>
-                    <MudText Typo="Typo.body1" Color="Color.Primary">@emptyPackWeight lbs</MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Primary">@(Math.Round((double)Backpack.Weight, 2)) lbs</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body1">Total Weight: </MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Primary">@(Math.Round((double)(totalItemsWeight + Backpack.Weight), 2)) lbs</MudText>
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudText Typo="Typo.body1">Items Weight: </MudText>
-                    <MudText Typo="Typo.body1" Color="Color.Primary">@totalItemsWeight lbs</MudText>
-                </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudText Typo="Typo.body1">Total Weight: </MudText>
-                        <MudText Typo="Typo.body1" Color="Color.Primary">@totalWeight lbs</MudText>
-                    </MudItem>
+                    <MudText Typo="Typo.body1" Color="Color.Primary">@(Math.Round((double)totalItemsWeight, 2)) lbs</MudText>
+                </MudItem> 
             </MudGrid>
         </MudCardContent>
     </MudCard>
-
-
-
-    
-
 }
 else if (isLoading)
 {
@@ -64,7 +59,7 @@ else
 @if (configItems.Any())
 {
     <MudGrid>
-        @foreach (var item in _context.ConfigurationItems.Where(x => x.ConfigId == Configuration.ConfigId))
+        @foreach (var item in configItems)
         {
             var detailsLink = $"/items/details/{item.ItemId}";
             var editLink = $"/items/edit/{item.ItemId}";
@@ -87,8 +82,9 @@ else
 
                     <MudCardActions>
                         <MudStack Spacing="2">
+
                             <!-- Toggle InBag Button -->
-                            <MudButton OnClick="() => ToggleBag(item2Add)" FullWidth>
+                            <MudButton OnClick="() => ToggleBag(item.Item)" FullWidth>
                                 Toggle InBag
                             </MudButton>
 
@@ -103,10 +99,15 @@ else
                             </MudButton>
                         </MudStack>
                     </MudCardActions>
+
                 </MudCard>
             </MudItem>
         }
     </MudGrid>
+}
+else
+{
+    <p>No Configuration Items.</p>
 }
 
 
@@ -122,10 +123,10 @@ else
 
 
 <h1>All Items</h1>
-@if (Items.Any())
+@if (notConfigItems.Any())
 {
     <MudGrid>
-        @foreach (var item in Items)
+        @foreach (var item in notConfigItems)
         {
             var detailsLink = $"/items/details/{item.ItemId}";
             var editLink = $"/items/edit/{item.ItemId}";
@@ -152,6 +153,10 @@ else
         }
     </MudGrid>
 }
+else
+{
+    <p>No Items Not In Configuration.</p>
+}
 
 
 
@@ -170,20 +175,17 @@ else
     [Parameter]
     public int ConfigId { get; set; }
 
-    private List<Item> Items = new List<Item>();
-
     private BackpackConfiguration? Configuration;
 
-
-    private List<ConfigurationItem> configItems = new List<ConfigurationItem>();
+    private Backpack Backpack;
 
     private bool isLoading = true;
 
-    private double totalWeight;
-
     private double totalItemsWeight;
 
-    private double emptyPackWeight;
+    private List<ConfigurationItem> configItems = new List<ConfigurationItem>();
+
+    private List<Item> notConfigItems = new List<Item>();
 
 
 
@@ -197,35 +199,31 @@ else
         // get configuration by id
         Configuration = await _context.BackpackConfigurations.FindAsync(ConfigId);
 
-        // find backpack pack by id and add to configuration
-        var Backpack = await _context.BackpackConfigurations.FirstOrDefaultAsync(x => x.BackpackId == Configuration.BackpackId);
-
+        // get backpack associated with configuration
+        Backpack = await _context.Backpacks.FindAsync(Configuration.BackpackId);
 
         // get all configuration items in configuration
         configItems = await _context.ConfigurationItems.Where(x => x.ConfigId == Configuration.ConfigId).ToListAsync();
 
-        // add item to config item objects
+        // add item to config item objects and calculate initial weight
         foreach (var i in configItems)
         {
             var item = _context.Items.FirstOrDefault(x => x.ItemId == i.ItemId);
             i.Item = item;
+            totalItemsWeight += item.Weight;
         }
 
-        // calculate initial weight
-        CalculateTotalWeight();
 
         // get all items
-        Items = await _context.Items.ToListAsync();
-
+        notConfigItems = await _context.Items.ToListAsync();
 
         // remove items from the display that are already in bag
         foreach (var item in configItems)
         {
-            if (Items.Contains(item.Item))
+            if (notConfigItems.Contains(item.Item))
             {
-                Items.Remove(item.Item);            
+                notConfigItems.Remove(item.Item);            
             }
-
 
         }
 
@@ -233,31 +231,11 @@ else
     }
 
 
-
-
-
-    private void CalculateTotalWeight()
-    {
-        totalItemsWeight = _context.ConfigurationItems.Where(x => x.InBag == true && x.ConfigId == Configuration.ConfigId).Sum(x => x.Item.Weight);
-
-        emptyPackWeight = (double)_context.Backpacks.FirstOrDefault(x => x.BackpackId == Configuration.BackpackId).Weight;
-
-        totalWeight = totalItemsWeight + emptyPackWeight;
-    }
-
-    private async void UpdateConfigItems()
-    {
-        // get all configuration items in configuration
-        configItems = await _context.ConfigurationItems.Where(x => x.ConfigId == Configuration.ConfigId).ToListAsync();
-
-    }
-
-
-
-
-
-
-    // Toggle the InBag state and recalculate the total weight
+    /// <summary>
+    /// add and remove items in config and adjust total weight
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
     private async Task ToggleBag(Item item)
     {
         var configItem = _context.ConfigurationItems.FirstOrDefault(x => x.ItemId == item.ItemId);
@@ -265,13 +243,17 @@ else
         // invert inbag status
         configItem.InBag = !configItem.InBag;
 
-        // Save changes asynchronously
+        if (configItem.InBag == true)
+        {
+            totalItemsWeight += item.Weight;  
+        }
+        else
+        {
+            totalItemsWeight -= item.Weight;   
+        }
+
         await _context.SaveChangesAsync();
-        CalculateTotalWeight(); // Recalculate the total weight after toggling
     }
-
-
-
 
 
 
@@ -301,34 +283,32 @@ else
             return;
         }
 
+
         // Create the new ConfigurationItem
         ConfigurationItem configItem = new ConfigurationItem
-            {
-                // ConfigItemId = item.ItemId,
-                ConfigId = Configuration.ConfigId,
-                InBag = true,  // Mark the item as in the bag
-                Quantity = item.Quantity,
-                Config = Configuration,
-                Item = item
-            };
+        {
+            ConfigId = Configuration.ConfigId,
+            InBag = true,  // Mark the item as in the bag
+            Quantity = item.Quantity,
+            Config = Configuration,
+            Item = item
+        };
 
-        // Configuration.ConfigurationItems.Add(configItem);
+
+        // add to config items
+        configItems.Add(configItem);
+
+        // remove item from addable items in local memory
+        notConfigItems.Remove(item);
+
+        // add weight
+        totalItemsWeight += item.Weight;
 
         // Add the ConfigurationItem to the context
         _context.ConfigurationItems.Add(configItem);
 
-        // update total weight after adding item
-        CalculateTotalWeight();
-
-        UpdateConfigItems();
-
         // Save changes asynchronously
         await _context.SaveChangesAsync();
-
-        
-
-        // remove item from addable items in local memory
-        Items.Remove(item);
     }
 
 
@@ -342,6 +322,7 @@ else
     private async Task RemoveFromConfig(int itemId)
     {
 
+        // get item by id
         var item = _context.Items.FirstOrDefault(x => x.ItemId == itemId);
 
         // Retrieve the ConfigurationItem from the database based on ItemId and ConfigId
@@ -353,20 +334,22 @@ else
             throw new Exception("Item not found in the configuration.");
         }
 
+        // remove from config
+        configItems.Remove(configItem);
+
+        // add it back to the items list
+        notConfigItems.Add(item);
+
+        // remove from weight
+        totalItemsWeight -= item.Weight;
+
         // Remove the ConfigurationItem from the database
         _context.ConfigurationItems.Remove(configItem);
 
         // Save changes asynchronously
         await _context.SaveChangesAsync();
-
-        // Remove the item from the in-memory configuration list
-        Configuration.ConfigurationItems.Remove(configItem);
-
-        Items.Add(item);
+    
     }
-
-
-
 
 
 
