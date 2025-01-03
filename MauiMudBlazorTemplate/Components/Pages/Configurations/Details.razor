@@ -7,40 +7,42 @@
 @inject NavigationManager NavManager
 
 
-<h3>Details</h3>
+<h1>Configuration Details</h1>
+
 @if (Configuration != null)
 {
     var editLink = $"/configurations/edit/{ConfigId}";
 
-    <MudCard Style="width: 24rem;" Class="mb-4">
-        <!-- Item Image -->
-        <MudCardMedia Image="" Alt="Item Image" Class="card-img-top" />
-
-        <!-- Card Body -->
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">@Configuration.Name</MudText>
+        </MudCardHeader>
         <MudCardContent>
-            <MudText Typo="Typo.h5" Class="card-title">@Configuration.Name</MudText>
-            <MudText Typo="Typo.body1"><strong>Description:</strong> @Configuration.Description</MudText>
-            <MudText Typo="Typo.h5"><strong>Total Weight:</strong> @_context.ConfigurationItems.Where(x => x.InBag == true && x.ConfigId == Configuration.ConfigId).Sum(x => x.Item.Weight)</MudText>
-            
-            <MudText Typo="Typo.h5">Items List</MudText>
-            @foreach (var item in _context.ConfigurationItems.Where(x => x.ConfigId == Configuration.ConfigId))
-            {
-                // grab coressponding item to configuration item
-                Item? item2Add = _context.Items.FirstOrDefault(x => x.ItemId == item.ItemId);
-                <MudText Typo="Typo.body1">@item2Add.Name</MudText>
-            }
- 
-         </MudCardContent>
-
-        <!-- Card Actions -->
-        <MudCardActions>
-            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoBack">Back to List</MudButton>
-            <MudLink Href="@editLink">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
-            </MudLink>
-        </MudCardActions>
-
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body1">Description</MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Primary">@Configuration.Description</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body1">Empty Pack Weight: </MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Primary">@emptyPackWeight lbs</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body1">Items Weight: </MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Primary">@totalItemsWeight lbs</MudText>
+                </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body1">Total Weight: </MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Primary">@totalWeight lbs</MudText>
+                    </MudItem>
+            </MudGrid>
+        </MudCardContent>
     </MudCard>
+
+
+
+    
+
 }
 else if (isLoading)
 {
@@ -57,7 +59,7 @@ else
 
 
 
-
+<!-- Items That Are Currently In The Configuration -->
 <h1>Configuration Items</h1>
 @if (configItems.Any())
 {
@@ -80,7 +82,7 @@ else
 
                     <MudCardContent>
                         <MudText Typo="Typo.h6" Class="truncate-text">@item.Item.Name</MudText> <!-- Shrink text -->
-                        <MudText Typo="Typo.body2">Weight: @item.Item.Weight</MudText>
+                        <MudText Typo="Typo.body2">Weight: @item.Item.Weight lbs</MudText>
                     </MudCardContent>
 
                     <MudCardActions>
@@ -172,11 +174,16 @@ else
 
     private BackpackConfiguration? Configuration;
 
+
     private List<ConfigurationItem> configItems = new List<ConfigurationItem>();
 
     private bool isLoading = true;
 
     private double totalWeight;
+
+    private double totalItemsWeight;
+
+    private double emptyPackWeight;
 
 
 
@@ -189,6 +196,10 @@ else
 
         // get configuration by id
         Configuration = await _context.BackpackConfigurations.FindAsync(ConfigId);
+
+        // find backpack pack by id and add to configuration
+        var Backpack = await _context.BackpackConfigurations.FirstOrDefaultAsync(x => x.BackpackId == Configuration.BackpackId);
+
 
         // get all configuration items in configuration
         configItems = await _context.ConfigurationItems.Where(x => x.ConfigId == Configuration.ConfigId).ToListAsync();
@@ -227,7 +238,11 @@ else
 
     private void CalculateTotalWeight()
     {
-        totalWeight = _context.ConfigurationItems.Where(x => x.InBag == true && x.ConfigId == Configuration.ConfigId).Sum(x => x.Item.Weight);
+        totalItemsWeight = _context.ConfigurationItems.Where(x => x.InBag == true && x.ConfigId == Configuration.ConfigId).Sum(x => x.Item.Weight);
+
+        emptyPackWeight = (double)_context.Backpacks.FirstOrDefault(x => x.BackpackId == Configuration.BackpackId).Weight;
+
+        totalWeight = totalItemsWeight + emptyPackWeight;
     }
 
     private async void UpdateConfigItems()

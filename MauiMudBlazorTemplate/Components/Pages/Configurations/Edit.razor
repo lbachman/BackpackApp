@@ -1,5 +1,101 @@
-﻿<h3>Edit</h3>
+﻿@page "/configurations/edit/{id:int}"
+@using MauiMudBlazor.Entities
+@using Microsoft.EntityFrameworkCore
+@using System.Diagnostics
+@inject NavigationManager NavManager
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+
+<h3>Edit Backpack Configuration</h3>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (config == null)
+{
+    <p>Backpack Configuration not found.</p>
+}
+else
+{
+    <!-- Add Backpack Form -->
+    <MudForm Model="@form">
+
+        <!--Heading -->
+        <MudText Typo="Typo.h6">@config.Name</MudText>
+
+        <!-- Backpack Id -->
+        <MudTextField T="int" @bind-Value="config.BackpackId" Text="@config.BackpackId.ToString()" For="@(() => config.BackpackId)" />
+
+        <!-- Name -->
+        <MudTextField T="string" @bind-Value="config.Name" Text="@config.Name" Label="Configuration Name" For="@(() => config.Name)" Required="true" />
+
+        <!-- Description -->
+        <MudTextField T="string" @bind-Value="config.Description" Text="@config.Description" Label="Configuration Description" For="@(() => config.Description)" Required="true" />
+           
+        <!-- Buttons -->
+        <MudStack Direction="Row" JustifyContent="space-between">
+
+            <!-- Submit -->
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleValidSubmit">Save Changes</MudButton>
+
+            <!-- Cancel -->
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+
+        </MudStack>
+    </MudForm>
+
+}
 
 @code {
+    [Parameter]
+    public int id { get; set; } // ID from the route parameter
+
+    private BackpackConfiguration? config;
+    private bool isLoading = true;
+    private MudForm form;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the item by ID
+        try
+        {
+            if (_context == null)
+                throw new InvalidOperationException("Database context is not initialized.");
+
+            config = await _context.BackpackConfigurations.FirstOrDefaultAsync(i => i.ConfigId == id);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading item: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_context != null && config != null)
+        {
+            try
+            {
+                _context.BackpackConfigurations.Update(config);
+                await _context.SaveChangesAsync();
+                NavManager.NavigateTo("/configurations/list"); // Redirect to items list
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error saving changes: {ex.Message}");
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        NavManager.NavigateTo("/configurations/list"); // Redirect to items list
+    }
+
 
 }
