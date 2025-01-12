@@ -169,7 +169,7 @@ else
     {
         if (_context == null)
             throw new InvalidOperationException("Database context is not initialized.");
-
+        
 
         // get configuration by id
         Configuration = await _context.BackpackConfigurations.FindAsync(ConfigId);
@@ -183,16 +183,22 @@ else
         // add item to config item objects and calculate initial weight
         foreach (var i in configItems)
         {
+            // grab the item that matches the config item to get weight
             var item = _context.Items.FirstOrDefault(x => x.ItemId == i.ItemId);
             i.Item = item;
-            totalItemsWeight += item.Weight;
+
+            // only add weight to total if inbag is true
+            if (i.InBag == true)
+            {
+                totalItemsWeight += item.Weight;
+            }
         }
 
 
         // get all items
         notConfigItems = await _context.Items.ToListAsync();
 
-        // remove items from the display that are already in bag
+        // remove items from list that that are already in config
         foreach (var item in configItems)
         {
             if (notConfigItems.Contains(item.Item))
