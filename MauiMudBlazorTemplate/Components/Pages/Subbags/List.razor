@@ -1,0 +1,149 @@
+﻿@page "/subbags/list"
+@using System.Diagnostics
+@using MudBlazor
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@using Microsoft.EntityFrameworkCore
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+@inject NavigationManager NavManager
+
+<h1>View SubBags</h1>
+<h4>SubBags</h4>
+<MudButton OnClick="ShowAddForm" Variant="Variant.Filled" Color="Color.Primary">Add SubBag</MudButton>
+<br />
+<br />
+
+@if (isAddFormVisible)
+{
+    <MudForm Model="@form">
+
+        <MudText Typo="Typo.h6">Add New Item</MudText>
+
+        <!-- Backpack ID -->
+        <MudNumericField T="int" @bind-Value="newSubBag.BackpackId" Label="Backpack ID" For="@(() => newSubBag.BackpackId)" />
+
+        <!-- Name -->
+        <MudTextField T="string" @bind-Value="newSubBag.Name" Label="SubBag Name" For="@(() => newSubBag.Name)" Required="true" />
+
+        <!-- Description -->
+        <MudTextField T="string" @bind-Value="newSubBag.Description" Label="Item Description" For="@(() => newSubBag.Description)" Required="true" />
+
+        <!-- Weight -->
+        <MudNumericField T="double?" @bind-Value="newSubBag.Weight" Label="Item Weight" For="@(() => newSubBag.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
+
+        <!-- Buttons -->
+        <MudStack Direction="Row" JustifyContent="space-between">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleValidSubmit">Save Changes</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="HideAddForm">Cancel</MudButton>
+        </MudStack>
+    </MudForm>
+}
+
+
+@* display all the items *@
+@if (SubBags.Any())
+{
+    <MudGrid>
+        @foreach (var subbag in SubBags)
+        {
+            <!-- Path Variables-->
+            var detailsLink = $"/subBags/details/{subbag.SubbagId}";
+            var editLink = $"/subBags/edit/{subbag.SubbagId}";
+            var deleteLink = $"/subBags/delete/{subbag.SubbagId}";
+
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Class="mb-4" Style="width: 18rem;">
+
+                    <!-- Clickable Image Link -->
+                    <MudLink Href="@detailsLink">
+                        <MudCardMedia Image="" Alt="subBag Image" Class="card-img-top" />
+                    </MudLink>
+
+                    <!-- Item Details-->
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">@subbag.Name</MudText>
+                            <MudText Typo="Typo.body2">@subbag.Description</MudText>
+                            <MudText Typo="Typo.body2">Weight: @subbag.Weight lbs</MudText>
+                        </MudCardContent>
+
+                        <!-- Button Links-->
+                        <MudCardActions>
+                            <MudButtonGroup>
+                                <MudLink Href="@editLink">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
+                                </MudLink>
+                                <MudLink Href="@deleteLink">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Large" />
+                                </MudLink>
+                            </MudButtonGroup>
+                        </MudCardActions>
+
+                    </MudCard>
+                </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <p>No subbags found.</p>
+}
+
+
+
+
+@code 
+{
+    private SubBag newSubBag = new SubBag();
+    private MudForm? form;
+    private List<SubBag> SubBags = new();
+    private bool hasErrors = false;
+    private bool isAddFormVisible = false;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // ensure context is initialized
+        if (_context == null)
+            throw new InvalidOperationException("Database context is not initialized.");
+
+
+        // get all items
+        SubBags = await _context.SubBags.ToListAsync();
+
+    }
+
+
+    // show and hide add item form
+    private void ShowAddForm() => isAddFormVisible = true;
+    private void HideAddForm() => isAddFormVisible = false;
+
+
+    /// <summary>
+    /// triggered when user submits add item form
+    /// </summary>
+    /// <returns></returns>
+    private async Task HandleValidSubmit()
+    {
+        if (_context != null)
+        {
+            try
+            {
+                newSubBag.BackpackId = 1;
+                newSubBag.CreatedAt = DateTime.Now;
+                _context.SubBags.Add(newSubBag);
+                await _context.SaveChangesAsync();
+
+
+                SubBags.Add(newSubBag);
+                newSubBag = new SubBag(); // Reset the form
+                isAddFormVisible = false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error saving item: {ex.Message}");
+            }
+        }
+    }
+
+}
