@@ -48,6 +48,59 @@ else
     <p class="text-danger">The item could not be found.</p>
 }
 
+<!-- Subbags That Are Currently In The Configuration -->
+<h1>SubBags</h1>
+@if (subBags.Any())
+{
+    <MudGrid>
+        @foreach (var bag in subBags)
+        {
+            var detailsLink = $"/subbags/details/{bag.SubbagId}";
+            var editLink = $"/subbags/edit/{bag.SubbagId}";
+            var deleteLink = $"/subbags/delete/{bag.SubbagId}";
+
+            <MudItem xs="6" sm="6" md="4">
+                <!-- Set xs=6 for 2 cards per row on small screens -->
+                <MudCard Class="mb-2" Style="width: 100%;">
+                    <!-- Adjusted width for better scaling -->
+                    <!-- Clickable image -->
+                    <MudLink Href="@detailsLink">
+                        <!-- Add your image source here -->
+                    </MudLink>
+
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6" Class="truncate-text">@bag.Name</MudText> <!-- Shrink text -->
+                            <MudText Typo="Typo.body2">Weight: @bag.Weight lbs</MudText>
+                    </MudCardContent>
+
+                    <MudCardActions>
+                        <MudStack Spacing="2">
+
+                            <!-- Toggle InBag Button -->
+                            <MudButton OnClick="() => ToggleSubBag(bag)" FullWidth>
+                             Toggle InBag
+                         </MudButton>
+
+                         <!-- Display InBag status -->
+                         <MudText Typo="Typo.body2" Align="Align.Center">
+                             @(bag.BackpackId == Backpack.BackpackId ? "In Bag" : "Not In Bag")
+                         </MudText>
+ 
+                     </MudStack>
+                 </MudCardActions>
+
+             </MudCard>
+         </MudItem>
+            
+        }
+    </MudGrid>
+    
+}
+else
+{
+    <p>No SubBags.</p>
+}
+
 
 <!-- Items That Are Currently In The Configuration -->
 <h1>Configuration Items</h1>
@@ -154,6 +207,8 @@ else
 
     private Backpack Backpack;
 
+    private List<SubBag> subBags = new List<SubBag>();
+
     private bool isLoading = true;
 
     private double totalItemsWeight;
@@ -169,13 +224,16 @@ else
     {
         if (_context == null)
             throw new InvalidOperationException("Database context is not initialized.");
-        
+
 
         // get configuration by id
         Configuration = await _context.BackpackConfigurations.FindAsync(ConfigId);
 
         // get backpack associated with configuration
         Backpack = await _context.Backpacks.FindAsync(Configuration.BackpackId);
+
+        // get all subbags
+        subBags = await _context.SubBags.ToListAsync();
 
         // get all configuration items in configuration
         configItems = await _context.ConfigurationItems.Where(x => x.ConfigId == Configuration.ConfigId).ToListAsync();
@@ -232,6 +290,68 @@ else
         {
             totalItemsWeight -= item.Weight;   
         }
+
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// add and remove subbag and adjust weight 
+    /// </summary>
+    /// <param name="subBag"></param>
+    /// <returns></returns>
+    private async Task ToggleSubBag(SubBag subBag)
+    {
+        // get all items in the subbag
+        var subBagItems = _context.Items.Where(item => item.SubbagId == subBag.SubbagId).ToList();
+
+        // if subbag is NOT in backpack
+        if (subBag.BackpackId == 1)
+        {
+            subBag.BackpackId = Backpack.BackpackId;
+
+            foreach (var item in subBagItems)
+            {
+
+                bool inConfig = _context.ConfigurationItems.Any(x => x.ItemId == item.ItemId);
+
+                // skip items already in config
+                if (inConfig)
+                {
+                    continue;
+                }
+                else
+                {
+                    await Add2Config(item.ItemId);   
+                }
+
+
+            }
+
+        }
+        // if subbag is in backpack, remove items
+        else
+        {
+            subBag.BackpackId = 1;
+
+            foreach (var item in subBagItems)
+            {
+
+                bool inConfig = _context.ConfigurationItems.Any(x => x.ItemId == item.ItemId);
+
+                // skip items already in config
+                if (inConfig)
+                {
+                    await RemoveFromConfig(item.ItemId);
+                }
+                else
+                {
+                    continue;
+                }
+
+            }
+
+        }
+
 
         await _context.SaveChangesAsync();
     }
