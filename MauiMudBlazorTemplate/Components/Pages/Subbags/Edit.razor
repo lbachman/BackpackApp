@@ -1,0 +1,95 @@
+﻿@page "/subbags/edit/{id:int}"
+@using MauiMudBlazor.Entities
+@using MudBlazor
+@using MudBlazor.Extensions
+@using Microsoft.EntityFrameworkCore
+@using System.Diagnostics
+@inject NavigationManager NavManager
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+
+<h1>Edit SubBag</h1>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (subBag == null)
+{
+    <p>SubBag not found.</p>
+}
+else
+{
+    <MudForm Model="@form">
+        <MudText Typo="Typo.h6">@subBag.Name</MudText>
+
+            <!-- Backpack ID -->
+            <MudNumericField T="int" Text="@subBag.BackpackId.ToString()" @bind-Value="subBag.BackpackId" Label="Backpack ID" For="@(() => subBag.BackpackId)" />
+
+            <!-- Name -->
+            <MudTextField T="string" Text="@subBag.Name" @bind-Value="subBag.Name" Label="subBag Name" For="@(() => subBag.Name)" Required="true" />
+
+            <!-- Description -->
+            <MudTextField T="string" Text="@subBag.Description" @bind-Value="subBag.Description" Label="subBag Description" For="@(() => subBag.Description)" Required="true" />
+
+            <!-- Weight -->
+            <MudNumericField T="double?" Text="@subBag.Weight.ToString()" @bind-Value="subBag.Weight" Label="subBag Weight" For="@(() => subBag.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
+
+            <!-- Buttons -->
+            <MudStack Direction="Row" JustifyContent="space-between">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleValidSubmit">Save Changes</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+            </MudStack>
+        </MudForm>
+
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; } // ID from the route parameter
+
+    private MudForm form;
+    private SubBag subBag;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the subBag by ID
+        try
+        {
+            if (_context == null)
+                throw new InvalidOperationException("Database context is not initialized.");
+
+            subBag = await _context.SubBags.FirstOrDefaultAsync(i => i.SubbagId == id);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading subBag: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (_context != null && subBag != null)
+        {
+            try
+            {
+                _context.SubBags.Update(subBag);
+                await _context.SaveChangesAsync();
+                NavManager.NavigateTo("/subbags/list"); // Redirect to subBags list
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error saving changes: {ex.Message}");
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        NavManager.NavigateTo("/subbags/list"); // Redirect to subBags list
+    }
+}

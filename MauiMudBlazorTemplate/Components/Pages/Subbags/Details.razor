@@ -1,0 +1,344 @@
+﻿@* @page "/subbags/details/{ConfigId:int}"
+@using MauiMudBlazor.Entities
+@using MauiMudBlazor.Contexts
+@using MudBlazor
+@using Microsoft.EntityFrameworkCore
+@inject MauiMudBlazor.Contexts.BackpackAppContext _context
+@inject NavigationManager NavManager
+
+
+<h1>SubBag Details</h1>
+
+@if (subBag != null)
+{
+    var editLink = $"/subbags/edit/{SubBagId}";
+
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">@subBag.Name</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body1">Description</MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Primary">@Configuration.Description</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body1">Empty Pack Weight: </MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Primary">@(Math.Round((double)Backpack.Weight, 2)) lbs</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body1">Total Weight: </MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Primary">@(Math.Round((double)(totalItemsWeight + Backpack.Weight), 2)) lbs</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body1">Items Weight: </MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Primary">@(Math.Round((double)totalItemsWeight, 2)) lbs</MudText>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+}
+else if (isLoading)
+{
+    <p>Loading item details...</p>
+}
+else
+{
+    <p class="text-danger">The item could not be found.</p>
+}
+
+
+<!-- Items That Are Currently In The Configuration -->
+<h1>Configuration Items</h1>
+@if (configItems.Any())
+{
+    <MudGrid>
+        @foreach (var item in configItems)
+        {
+            var detailsLink = $"/items/details/{item.ItemId}";
+            var editLink = $"/items/edit/{item.ItemId}";
+            var deleteLink = $"/items/delete/{item.ItemId}";
+
+            // grab corresponding item to configuration item
+            Item? item2Add = _context.Items.FirstOrDefault(x => x.ItemId == item.ItemId);
+
+            <MudItem xs="6" sm="6" md="4">
+                <!-- Set xs=6 for 2 cards per row on small screens -->
+                <MudCard Class="mb-2" Style="width: 100%;">
+                    <!-- Adjusted width for better scaling -->
+                    <!-- Clickable image -->
+                    <MudLink Href="@detailsLink">
+                        <!-- Add your image source here -->
+                    </MudLink>
+
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6" Class="truncate-text">@item.Item.Name</MudText> <!-- Shrink text -->
+                            <MudText Typo="Typo.body2">Weight: @item.Item.Weight lbs</MudText>
+                    </MudCardContent>
+
+                    <MudCardActions>
+                        <MudStack Spacing="2">
+
+                            <!-- Toggle InBag Button -->
+                            <MudButton OnClick="() => ToggleBag(item.Item)" FullWidth>
+                             Toggle InBag
+                         </MudButton>
+
+                         <!-- Display InBag status -->
+                         <MudText Typo="Typo.body2" Align="Align.Center">
+                             @(item.InBag == true ? "In Bag" : "Not In Bag")
+                         </MudText>
+
+                         <!-- Remove from Config Button -->
+                         <MudButton OnClick="@(() => RemoveFromConfig(item.ItemId))" Color="Color.Error" FullWidth>
+                             Remove from Config
+                         </MudButton>
+                     </MudStack>
+                 </MudCardActions>
+
+             </MudCard>
+         </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <p>No Configuration Items.</p>
+}
+
+
+
+<h1>All Items</h1>
+@if (notConfigItems.Any())
+{
+    <MudGrid>
+        @foreach (var item in notConfigItems)
+        {
+            var detailsLink = $"/items/details/{item.ItemId}";
+            var editLink = $"/items/edit/{item.ItemId}";
+            var deleteLink = $"/items/delete/{item.ItemId}";
+
+            <MudItem xs="6" sm="6" md="4">
+                <!-- Set xs=6 for 2 cards per row on small screens -->
+                <MudCard Class="mb-4" Style="width: 100%;">
+                    <!-- Adjusted width for better scaling -->
+                    <!-- Clickable image -->
+                    <MudLink Href="@detailsLink">
+                        <!-- Add your image source here -->
+                    </MudLink>
+
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6" Class="truncate-text">@item.Name</MudText> <!-- Shrink text -->
+                            <MudText Typo="Typo.body2">@item.Description</MudText>
+                            <MudText Typo="Typo.body2">Weight: @item.Weight</MudText>
+                            <MudText Typo="Typo.body2">Quantity: @item.Quantity</MudText>
+
+                            <!-- Add button -->
+                            <MudButton Color="Color.Primary" OnClick="@(() => Add2Config(@item.ItemId))">Add</MudButton>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <p>No Items Not In Configuration.</p>
+}
+
+
+
+@code
+{
+    [Parameter]
+    public int ConfigId { get; set; }
+
+    private SubBag? subBag;
+
+    private Backpack Backpack;
+
+    private bool isLoading = true;
+
+    private double totalItemsWeight;
+
+    private List<ConfigurationItem> configItems = new List<ConfigurationItem>();
+
+    private List<Item> notConfigItems = new List<Item>();
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_context == null)
+            throw new InvalidOperationException("Database context is not initialized.");
+
+
+        // get configuration by id
+        Configuration = await _context.BackpackConfigurations.FindAsync(ConfigId);
+
+        // get backpack associated with configuration
+        Backpack = await _context.Backpacks.FindAsync(Configuration.BackpackId);
+
+        // get all configuration items in configuration
+        configItems = await _context.ConfigurationItems.Where(x => x.ConfigId == Configuration.ConfigId).ToListAsync();
+
+        // add item to config item objects and calculate initial weight
+        foreach (var i in configItems)
+        {
+            var item = _context.Items.FirstOrDefault(x => x.ItemId == i.ItemId);
+            i.Item = item;
+            totalItemsWeight += item.Weight;
+        }
+
+
+        // get all items
+        notConfigItems = await _context.Items.ToListAsync();
+
+        // remove items from the display that are already in bag
+        foreach (var item in configItems)
+        {
+            if (notConfigItems.Contains(item.Item))
+            {
+                notConfigItems.Remove(item.Item);
+            }
+
+        }
+
+        isLoading = false;
+    }
+
+
+    /// <summary>
+    /// add and remove items in config and adjust total weight
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    private async Task ToggleBag(Item item)
+    {
+        var configItem = _context.ConfigurationItems.FirstOrDefault(x => x.ItemId == item.ItemId);
+
+        // invert inbag status
+        configItem.InBag = !configItem.InBag;
+
+        if (configItem.InBag == true)
+        {
+            totalItemsWeight += item.Weight;
+        }
+        else
+        {
+            totalItemsWeight -= item.Weight;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+
+
+
+
+    /// <summary>
+    /// Adds an item to the configuration, marking it as "InBag."
+    /// </summary>
+    /// <param name="itemId">The ID of the item to add to the configuration.</param>
+    /// <exception cref="Exception">Throws an exception if the item is not found.</exception>
+    private async Task Add2Config(int itemId)
+    {
+        // Retrieve the item from the database using FindAsync for better performance
+        Item? item = await _context.Items.FindAsync(itemId);
+
+        if (item is null)
+        {
+            throw new Exception("Item not found.");
+        }
+
+        // Check if the item is already in the configuration to avoid duplicates
+        bool isItemAlreadyInConfig = _context.ConfigurationItems
+            .Any(x => x.ItemId == itemId && x.ConfigId == Configuration.ConfigId);
+
+        if (isItemAlreadyInConfig)
+        {
+            return;
+        }
+
+
+        // Create the new ConfigurationItem
+        ConfigurationItem configItem = new ConfigurationItem
+            {
+                ConfigId = Configuration.ConfigId,
+                InBag = true,  // Mark the item as in the bag
+                Quantity = item.Quantity,
+                Config = Configuration,
+                Item = item
+            };
+
+
+        // add to config items
+        configItems.Add(configItem);
+
+        // remove item from addable items in local memory
+        notConfigItems.Remove(item);
+
+        // add weight
+        totalItemsWeight += item.Weight;
+
+        // Add the ConfigurationItem to the context
+        _context.ConfigurationItems.Add(configItem);
+
+        // Save changes asynchronously
+        await _context.SaveChangesAsync();
+    }
+
+
+
+
+    /// <summary>
+    /// Removes an item from the configuration.
+    /// </summary>
+    /// <param name="itemId">The ID of the item to remove from the configuration.</param>
+    /// <exception cref="Exception">Throws an exception if the item is not found in the configuration.</exception>
+    private async Task RemoveFromConfig(int itemId)
+    {
+
+        // get item by id
+        var item = _context.Items.FirstOrDefault(x => x.ItemId == itemId);
+
+        // Retrieve the ConfigurationItem from the database based on ItemId and ConfigId
+        ConfigurationItem? configItem = await _context.ConfigurationItems
+            .FirstOrDefaultAsync(x => x.ItemId == itemId && x.ConfigId == Configuration.ConfigId);
+
+        if (configItem is null)
+        {
+            throw new Exception("Item not found in the configuration.");
+        }
+
+        // remove from config
+        configItems.Remove(configItem);
+
+        // add it back to the items list
+        notConfigItems.Add(item);
+
+        // remove from weight
+        totalItemsWeight -= item.Weight;
+
+        // Remove the ConfigurationItem from the database
+        _context.ConfigurationItems.Remove(configItem);
+
+        // Save changes asynchronously
+        await _context.SaveChangesAsync();
+
+    }
+
+
+
+    /// <summary>
+    /// navigate back to configuration list
+    /// </summary>
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/configurations/list");
+    }
+
+}
+ *@
