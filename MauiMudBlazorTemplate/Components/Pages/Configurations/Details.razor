@@ -312,16 +312,19 @@ else
             foreach (var item in subBagItems)
             {
 
-                bool inConfig = _context.ConfigurationItems.Any(x => x.ItemId == item.ItemId);
+                // Check if the item is already in the configuration to avoid duplicates
+                bool isItemAlreadyInConfig = _context.ConfigurationItems
+                    .Any(x => x.ItemId == item.ItemId && x.ConfigId == Configuration.ConfigId);
+
 
                 // skip items already in config
-                if (inConfig)
+                if (isItemAlreadyInConfig)
                 {
                     continue;
                 }
                 else
                 {
-                    await Add2Config(item.ItemId);   
+                    Add2Config(item.ItemId);   
                 }
 
 

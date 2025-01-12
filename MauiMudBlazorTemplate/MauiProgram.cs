@@ -61,23 +61,11 @@ namespace MauiMudBlazor
 
 
 
-
-
-
-
-            Debug.WriteLine($"Database Path: {dbPath}");
-
-
-
-
             Debug.WriteLine($"Database Path: {dbPath}");
             builder.Services.AddDbContext<BackpackAppContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
 
             
-
-            
-
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
