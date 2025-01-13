@@ -120,9 +120,7 @@
 	
 	
 	<ItemGroup>
-	  <None Include="Components\Pages\Counter.razor" />
 	  <None Include="Components\Pages\Home.razor" />
-	  <None Include="Components\Pages\Weather.razor" />
 	</ItemGroup>
 
 	
