@@ -17,22 +17,22 @@ namespace MauiMudBlazor.Components.Layout
         {
             // Colors : https://mudblazor.com/features/colors#material-colors-list-of-material-colors
 
-            //PaletteLight = new PaletteLight()
-            //{
-            //    Primary = MudBlazor.Colors.Yellow.Darken3,
-            //    Secondary = MudBlazor.Colors.Yellow.Accent4,
-            //    AppbarBackground = MudBlazor.Colors.Yellow.Darken4,
-            //},
-            //PaletteDark = new PaletteDark()
-            //{
-            //    Primary = MudBlazor.Colors.Yellow.Darken4,
-            //},
+            PaletteLight = new PaletteLight()
+            {
+                Primary = MudBlazor.Colors.Yellow.Darken3,
+                Secondary = MudBlazor.Colors.Yellow.Accent4,
+                AppbarBackground = MudBlazor.Colors.Yellow.Darken4,
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = MudBlazor.Colors.Yellow.Darken4,
+            },
 
-            //LayoutProperties = new LayoutProperties()
-            //{
-            //    DrawerWidthLeft = "260px",
-            //    DrawerWidthRight = "300px"
-            //}
+            LayoutProperties = new LayoutProperties()
+            {
+                DrawerWidthLeft = "260px",
+                DrawerWidthRight = "300px"
+            }
         };
 
         bool _drawerOpen = true;

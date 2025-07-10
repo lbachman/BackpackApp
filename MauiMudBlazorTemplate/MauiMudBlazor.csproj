@@ -139,4 +139,12 @@
 		<PackageReference Include="MudBlazor" Version="7.15.0" />
 	</ItemGroup>
 
+	
+	
+	<ItemGroup>
+	  <None Update="Resources\BackpackSQLite.db">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

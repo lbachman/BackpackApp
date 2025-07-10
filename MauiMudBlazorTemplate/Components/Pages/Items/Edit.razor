@@ -29,7 +29,7 @@ else
     <MudTextField T="string" Text="@item.Description" @bind-Value="item.Description" Label="Item Description" For="@(() => item.Description)" Required="true" />
 
     <!-- Weight -->
-    <MudNumericField T="double" Text="@item.Weight.ToString()" @bind-Value="item.Weight" Label="Item Weight" For="@(() => item.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
+    <MudNumericField T="double" Text="@item.Weight.ToString()" @bind-Value="item.Weight" Label="Item Weight" For="@(() => item.Weight)" Adornment="Adornment.Start" AdornmentText="lbs" />
 
     <!-- Quantity -->
     <MudNumericField T="int?" Text="@item.Quantity.ToString()" @bind-Value="item.Quantity" Label="Item Quantity" For="@(() => item.Quantity)" />
