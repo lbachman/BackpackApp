@@ -14,33 +14,48 @@
 
 @if (isAddFormVisible)
 {
-    <EditForm Model="@newConfiguration" OnValidSubmit="@HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <!-- Add Backpack Form -->
+    <MudForm Model="@form">
 
-        <div class="form-group">
-            <label for="backpackId">Backpack Id</label>
-            <InputNumber id="backpackId" class="form-control" @bind-Value="newConfiguration.BackpackId" />
-            <ValidationMessage For="@(() => newConfiguration.BackpackId)" />
-        </div>
+        <!--Heading -->
+        <MudText Typo="Typo.h6">Add New Configuration</MudText>
 
-        <div class="form-group">
-            <label for="name">Name</label>
-            <InputText id="name" class="form-control" @bind-Value="newConfiguration.Name" />
-            <ValidationMessage For="@(() => newConfiguration.Name)" />
-        </div>
+        <!-- Backpack Id Input Field -->
+        <MudTextField T="int" Label="Backpack ID" @bind-Value="newConfiguration.BackpackId" />
 
-        <div class="form-group">
-            <label for="description">Description</label>
-            <InputText id="description" class="form-control" @bind-Value="newConfiguration.Description" />
-            <ValidationMessage For="@(() => newConfiguration.Description)" />
-        </div>
 
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Add Configuration</button>
-            <button type="button" class="btn btn-secondary" @onclick="HideAddConfigForm">Cancel</button>
-        </div>
-    </EditForm>
+        <!-- Dropdown Menu to Select an ID -->
+        <MudMenu Label="Select an ID" Color="Color.Primary">
+            @foreach (var backpack in backpacks)
+            {
+                <MudMenuItem OnClick="@(() => SelectId(backpack.BackpackId))">
+                    @backpack.Name (ID: @backpack.BackpackId)
+                </MudMenuItem>
+            }
+        </MudMenu>
+
+        <!-- Name -->
+        <MudTextField T="string" @bind-Value="newConfiguration.Name" Label="Configuration Name" For="@(() => newConfiguration.Name)" Required="true" />
+
+        <!-- Description -->
+        <MudTextField T="string" @bind-Value="newConfiguration.Description" Label="Configuration Description" For="@(() => newConfiguration.Description)" Required="true" />
+
+        <!-- Buttons -->
+        <MudStack Direction="Row" JustifyContent="space-between">
+
+            <!-- Submit -->
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleValidSubmit">Save Changes</MudButton>
+
+            <!-- Cancel -->
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="HideAddConfigForm">Cancel</MudButton>
+
+        </MudStack>
+
+    </MudForm>
+
+
+
+
 }
 
 @if (BackpackConfigurations.Any())
@@ -85,11 +100,15 @@ else
     <p>No configurations found.</p>
 }
 
+<!-- Spacer -->
+<div style="height: 100px;"></div>
+
 @code
 {
     private MudForm form;
     private List<BackpackConfiguration> BackpackConfigurations = new();
     private BackpackConfiguration newConfiguration = new BackpackConfiguration();
+    public List<Backpack> backpacks = new List<Backpack>();
     private bool isAddFormVisible = false;
 
     protected override async Task OnInitializedAsync()
@@ -98,11 +117,17 @@ else
             throw new InvalidOperationException("Database context is not initialized.");
 
         BackpackConfigurations = await _context.BackpackConfigurations.ToListAsync();
+        backpacks = _context.Backpacks.ToList();
     }
 
     private void ShowAddConfigForm() => isAddFormVisible = true;
 
     private void HideAddConfigForm() => isAddFormVisible = false;
+
+    private void SelectId(int id)
+    {
+        newConfiguration.BackpackId = id;
+    }
 
     private async Task HandleValidSubmit()
     {      

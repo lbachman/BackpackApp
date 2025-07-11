@@ -17,23 +17,23 @@ else if (config == null)
 }
 else
 {
-    <!-- Add Backpack Form -->
+    <!-- Edit Config Form -->
     <MudForm Model="@form">
 
         <!--Heading -->
         <MudText Typo="Typo.h6">@config.Name</MudText>
 
-            <!-- Backpack Id Input Field -->
-            <MudTextField T="int" Label="Backpack ID" @bind-Value="config.BackpackId" />
+        <!-- Backpack Id Input Field -->
+        <MudTextField T="int" Label="Backpack ID" @bind-Value="config.BackpackId" />
 
-            <!-- Dropdown Menu to Select an ID -->
-            <MudMenu Label="Select an ID" Color="Color.Primary">
-                @foreach (var backpack in backpacks)
-            {
-                <MudMenuItem OnClick="@(() => SelectId(backpack.BackpackId))">
-                    @backpack.Name (ID: @backpack.BackpackId)
-                </MudMenuItem>
-            }
+        <!-- Dropdown Menu to Select an ID -->
+        <MudMenu Label="Select an ID" Color="Color.Primary">
+            @foreach (var backpack in backpacks)
+        {
+            <MudMenuItem OnClick="@(() => SelectId(backpack.BackpackId))">
+                @backpack.Name (ID: @backpack.BackpackId)
+            </MudMenuItem>
+        }
         </MudMenu>
 
         <!-- Name -->

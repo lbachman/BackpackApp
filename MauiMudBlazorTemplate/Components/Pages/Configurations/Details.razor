@@ -6,6 +6,10 @@
 @inject MauiMudBlazor.Contexts.BackpackAppContext _context
 @inject NavigationManager NavManager
 
+<MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@GoBack">
+    <MudIcon Icon="@Icons.Material.Filled.ArrowBack" />
+    Back
+</MudButton>
 
 <h1>Configuration Details</h1>
 
@@ -23,6 +27,12 @@
                     <MudText Typo="Typo.body1">Description</MudText>
                     <MudText Typo="Typo.body1" Color="Color.Primary">@Configuration.Description</MudText>
                 </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body1">Backpack</MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Primary">@Backpack.Name</MudText>  @* //here *@
+                </MudItem>
+
                 <MudItem xs="12" sm="6">
                     <MudText Typo="Typo.body1">Empty Pack Weight: </MudText>
                         <MudText Typo="Typo.body1" Color="Color.Primary">@(Math.Round((double)Backpack.Weight, 2)) lbs</MudText>

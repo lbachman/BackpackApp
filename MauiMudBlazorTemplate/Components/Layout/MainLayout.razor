@@ -9,8 +9,27 @@
 
 <MudLayout>
     <MudAppBar Bottom="true">
+
         <MudIconButton OnClick="DrawerToggle" Icon="@Icons.Material.Rounded.Notes" Color="Color.Inherit" Edge="Edge.Start" />
         <MudSpacer/>
+
+        <MudNavLink Match="NavLinkMatch.All" IconColor="Color.Inherit" Href="/backpacks/list"
+                    Icon="@Icons.Material.Outlined.Backpack"></MudNavLink>
+        <MudSpacer />
+
+        <MudNavLink Match="NavLinkMatch.All" IconColor="Color.Inherit" Href="/subbags/list"
+                    Icon="@Icons.Material.Outlined.Category"></MudNavLink>
+        <MudSpacer />
+
+        <MudNavLink Match="NavLinkMatch.All" IconColor="Color.Inherit" Href="/items/list"
+                    Icon="@Icons.Material.Outlined.Inventory"></MudNavLink>
+        <MudSpacer />
+
+        <MudNavLink Match="NavLinkMatch.All" IconColor="Color.Inherit" Href="/configurations/list"
+                    Icon="@Icons.Material.Outlined.Build"></MudNavLink>
+        <MudSpacer />
+
+
         <MudToggleIconButton ToggledChanged="@ToggleDarkMode" Icon="@Icons.Material.Filled.LightMode"
                              ToggledIcon="@Icons.Material.Filled.DarkMode"></MudToggleIconButton>
     </MudAppBar>

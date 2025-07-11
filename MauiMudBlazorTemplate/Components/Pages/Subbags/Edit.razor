@@ -22,8 +22,22 @@ else
     <MudForm Model="@form">
         <MudText Typo="Typo.h6">@subBag.Name</MudText>
 
-            <!-- Backpack ID -->
-            <MudNumericField T="int" Text="@subBag.BackpackId.ToString()" @bind-Value="subBag.BackpackId" Label="Backpack ID" For="@(() => subBag.BackpackId)" />
+            <!-- Backpack Id Input Field -->
+            <MudTextField T="int" Label="Backpack ID" @bind-Value="subBag.BackpackId" />
+
+
+            <!-- Dropdown Menu to Select an ID -->
+            <MudMenu Label="Select an ID" Color="Color.Primary">
+                @foreach (var backpack in backpacks)
+                {
+                    <MudMenuItem OnClick="@(() => SelectId(backpack.BackpackId))">
+                        @backpack.Name (ID: @backpack.BackpackId)
+                    </MudMenuItem>
+                }
+            </MudMenu>
+
+
+
 
             <!-- Name -->
             <MudTextField T="string" Text="@subBag.Name" @bind-Value="subBag.Name" Label="subBag Name" For="@(() => subBag.Name)" Required="true" />
@@ -32,7 +46,7 @@ else
             <MudTextField T="string" Text="@subBag.Description" @bind-Value="subBag.Description" Label="subBag Description" For="@(() => subBag.Description)" Required="true" />
 
             <!-- Weight -->
-            <MudNumericField T="double?" Text="@subBag.Weight.ToString()" @bind-Value="subBag.Weight" Label="subBag Weight" For="@(() => subBag.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
+            <MudNumericField T="double?" Text="@subBag.Weight.ToString()" @bind-Value="subBag.Weight" Label="subBag Weight" For="@(() => subBag.Weight)" Adornment="Adornment.Start" AdornmentText="lbs" />
 
             <!-- Buttons -->
             <MudStack Direction="Row" JustifyContent="space-between">
@@ -50,6 +64,7 @@ else
     private MudForm form;
     private SubBag subBag;
     private bool isLoading = true;
+    public List<Backpack> backpacks = new List<Backpack>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -60,6 +75,7 @@ else
                 throw new InvalidOperationException("Database context is not initialized.");
 
             subBag = await _context.SubBags.FirstOrDefaultAsync(i => i.SubbagId == id);
+            backpacks = _context.Backpacks.ToList();
         }
         catch (Exception ex)
         {
@@ -86,6 +102,11 @@ else
                 Debug.WriteLine($"Error saving changes: {ex.Message}");
             }
         }
+    }
+
+    private void SelectId(int id)
+    {
+        subBag.BackpackId = id;
     }
 
     private void Cancel()

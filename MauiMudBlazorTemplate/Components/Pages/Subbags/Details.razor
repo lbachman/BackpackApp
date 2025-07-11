@@ -6,6 +6,10 @@
 @inject MauiMudBlazor.Contexts.BackpackAppContext _context
 @inject NavigationManager NavManager
 
+<MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@GoBack">
+    <MudIcon Icon="@Icons.Material.Filled.ArrowBack" />
+    Back
+</MudButton>
 
 <h1>SubBag Details</h1>
 
@@ -142,7 +146,8 @@ else
 {
     <p>No Items Not In SubBag.</p>
 }
-
+<!-- Spacer -->
+<div style="height: 100px;"></div>
 
 
 @code

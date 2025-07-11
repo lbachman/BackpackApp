@@ -27,16 +27,10 @@
         <MudTextField T="string"  @bind-Value="newItem.Description" Label="Item Description" For="@(() => newItem.Description)" Required="true" />
 
         <!-- Weight -->
-        <MudNumericField T="double"  @bind-Value="newItem.Weight" Label="Item Weight" For="@(() => newItem.Weight)" Adornment="Adornment.Start" AdornmentText="kg" />
+        <MudNumericField T="double"  @bind-Value="newItem.Weight" Label="Item Weight" For="@(() => newItem.Weight)" Adornment="Adornment.Start" AdornmentText="lbs" />
 
         <!-- Quantity -->
         <MudNumericField T="int?"  @bind-Value="newItem.Quantity" Label="Item Quantity" For="@(() => newItem.Quantity)" />
-
-        <!-- Subbag ID -->
-        <MudNumericField T="int?"  @bind-Value="newItem.SubbagId" Label="Subbag ID" For="@(() => newItem.SubbagId)" />
-
-        <!-- Backpack ID -->
-        <MudNumericField T="int"  @bind-Value="newItem.BackpackId" Label="Backpack ID" For="@(() => newItem.BackpackId)" />
 
         <!-- Buttons -->
         <MudStack Direction="Row" JustifyContent="space-between">
@@ -44,6 +38,8 @@
             <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="HideAddItemForm">Cancel</MudButton>
         </MudStack>
     </MudForm>
+
+    
 }
 
 
@@ -97,7 +93,8 @@ else
     <p>No items found.</p>
 }
 
-
+<!-- Spacer -->
+<div style="height: 100px;"></div>
 
 
 @code 
