@@ -42,6 +42,11 @@ namespace MauiMudBlazor
                     rawStream.CopyTo(fileStream);
                 }
             }
+            builder.Services.AddScoped(sp => new HttpClient
+            {
+               
+            });
+
 
 #elif WINDOWS
             // Windows-specific database configuration
@@ -54,6 +59,11 @@ namespace MauiMudBlazor
                 string sourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "BackpackSQLite.db");
                 File.Copy(sourcePath, dbPath);
             }
+
+            builder.Services.AddScoped(sp => new HttpClient
+            {
+                
+            });
 #else
             throw new PlatformNotSupportedException("Unsupported platform for database configuration.");
 #endif

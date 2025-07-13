@@ -1,15 +1,85 @@
 ﻿@page "/"
+@using MauiMudBlazor.Helpers
+@using System.Text.Json
+@inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Weather by Location</MudText>
-<MudText Class="mb-8">Put Weather app here.</MudText>
+@* <MudText>@weatherData.location.name</MudText> *@
+
+<MudCard Class="mx-auto my-6 p-4" Style="max-width: 400px;">
+    @if (weatherData != null && openWeatherData != null)
+    {
+        <MudCardHeader>
+            <MudText Typo="Typo.h5">@weatherData.location.name</MudText>
+            <MudText Typo="Typo.subtitle2">@weatherData.location.localtime</MudText>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudStack Spacing="2">
+                <MudStack Direction="Row" AlignItems="AlignItems.Center" Spacing="1">
+                    <MudIcon Icon="@Icons.Material.Filled.WbSunny" />
+                    <MudText Typo="Typo.h6">@($"{openWeatherData.main.temp_min}°F – {openWeatherData.main.temp_max}°F")</MudText>
+                </MudStack>
+
+                <MudDivider />
+
+                <MudStack Direction="Row" JustifyContent="space-between">
+                    <MudText>🌅 Sunrise: @weatherData.astronomy.astro.sunrise</MudText>
+                    <MudText>🌇 Sunset: @weatherData.astronomy.astro.sunset</MudText>
+                </MudStack>
+
+                <MudStack Direction="Row" JustifyContent="space-between">
+                    <MudText>🌙 Moonrise: @weatherData.astronomy.astro.moonrise</MudText>
+                    <MudText>🌘 Moonset: @weatherData.astronomy.astro.moonset</MudText>
+                </MudStack>
+
+                <MudText>🌑 Moon Phase: <strong>@weatherData.astronomy.astro.moon_phase</strong></MudText>
+                <MudText>🔆 Illumination: <strong>@weatherData.astronomy.astro.moon_illumination</strong></MudText>
+            </MudStack>
+        </MudCardContent>
+    }
+    else
+    {
+        <MudCardContent>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+            <MudText>Error</MudText>
+        </MudCardContent>
+    }
+</MudCard>
+
+@code {
+    string baseUrl = "http://api.weatherapi.com/v1";
+    string openBaseUrl = "https://api.openweathermap.org/data/2.5/";
+
+    string zip = "37601";
+    string lang = "eng";
+
+    const string apiKey = "1821216d7f7042569f020624251207";
+    const string openKey = "9b0943160bfda6c90993977dedf60773";
+    
+    public string url;
+    public string openUrl;
 
 
+    private AstronomyCall.AstronomyRoot weatherData;
+    private WeatherCall.OpenWeatherRoot? openWeatherData;
 
+    
 
+    protected override async Task OnInitializedAsync()
+    {
+        url = $"{baseUrl}{WeatherApiEndpoints.Astronomy}?q={zip}&lang={lang}&key={apiKey}";
+        openUrl = $"{openBaseUrl}weather?zip={zip}&appid={openKey}&units=imperial";
 
-
-
-
-
+        try
+        {
+            weatherData = await Http.GetFromJsonAsync<AstronomyCall.AstronomyRoot>(url);
+            openWeatherData = await Http.GetFromJsonAsync<WeatherCall.OpenWeatherRoot>(openUrl);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}

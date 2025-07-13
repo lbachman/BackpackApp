@@ -69,10 +69,11 @@
 
             <MudItem xs="12" sm="6" md="4">
                 <MudCard Class="mb-4" Style="width: 18rem;">
-                    <!-- Clickable image -->
+
+                    @* <!-- Clickable image -->
                     <MudLink Href="@detailsLink">
                         <MudCardMedia Image="" Alt="Configuration Image" Class="card-img-top" />
-                    </MudLink>
+                    </MudLink> *@
 
                     <MudCardContent>
                         <MudText Typo="Typo.h5">@config.Name</MudText>
@@ -82,12 +83,19 @@
 
                         <MudCardActions>
                             <MudButtonGroup>
+
                                 <MudLink Href="@editLink">
                                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
+
+                                <MudLink Href="@detailsLink">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Details" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
+                                </MudLink>
+
                                 <MudLink Href="@deleteLink">
                                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
+
                             </MudButtonGroup>
                         </MudCardActions>
                     </MudCard>

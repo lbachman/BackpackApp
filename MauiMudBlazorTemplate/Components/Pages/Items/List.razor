@@ -58,10 +58,10 @@
             <MudItem xs="12" sm="6" md="4">
                 <MudCard Class="mb-4" Style="width: 18rem;">
 
-                    <!-- Clickable Image Link -->
+                    @* <!-- Clickable Image Link -->
                     <MudLink Href="@detailsLink">
                         <MudCardMedia Image="" Alt="Item Image" Class="card-img-top" />
-                    </MudLink>
+                    </MudLink> *@
 
                     <!-- Item Details-->
                     <MudCardContent>
@@ -74,12 +74,17 @@
                         <!-- Button Links-->
                         <MudCardActions>
                             <MudButtonGroup>
+
                                 <MudLink Href="@editLink">
                                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
                                 </MudLink>
+
                                 <MudLink Href="@deleteLink">
                                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Large" />
                                 </MudLink>
+
+                            
+
                             </MudButtonGroup>
                         </MudCardActions>
 
@@ -159,5 +164,10 @@ else
     {
         
     }
+
+
+    
+
+
 
 }

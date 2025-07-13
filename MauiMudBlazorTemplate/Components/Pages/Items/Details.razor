@@ -27,10 +27,17 @@
 
     <!-- Card Actions -->
     <MudCardActions>
+
         <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoBack">Back to List</MudButton>
-                <MudLink Href="@editLink">
+
+        <MudLink Href="@editLink">
             <MudButton Variant="Variant.Filled" Color="Color.Primary">Edit</MudButton>
         </MudLink>
+
+        <MudLink>
+            <MudIconButton Icon="@Icons.Material.Filled.Camera" OnClick="HandleTakePicture" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
+        </MudLink>
+
     </MudCardActions>
 
 </MudCard>
@@ -62,6 +69,46 @@ else
         itemDetails = await _context.Items.FindAsync(ItemId);
         isLoading = false;
     }
+
+    async Task HandleTakePicture()
+    {
+        var path = await CaptureAndSavePhotoAsync();
+        if (!string.IsNullOrEmpty(path))
+        {
+            itemDetails.PictureUrl = path;
+        }
+        else
+        {
+            throw new InvalidOperationException("Failed to capture photo.");
+        }
+    }
+
+
+    public async Task<string?> CaptureAndSavePhotoAsync()
+    {
+        try
+        {
+            var photo = await MediaPicker.Default.CapturePhotoAsync();
+            if (photo == null) return null;
+
+            // Create unique filename
+            var fileName = $"{Guid.NewGuid()}.jpg";
+            var filePath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+            // Copy the photo to local storage
+            using var sourceStream = await photo.OpenReadAsync();
+            using var destinationStream = File.OpenWrite(filePath);
+            await sourceStream.CopyToAsync(destinationStream);
+
+            return filePath;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Photo capture error: {ex.Message}");
+            return null;
+        }
+    }
+
 
     private void GoBack()
     {
