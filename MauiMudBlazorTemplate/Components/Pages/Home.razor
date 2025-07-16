@@ -4,9 +4,7 @@
 @inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
-
-@* <MudText>@weatherData.location.name</MudText> *@
-
+<MudText>@weatherApiUrlCurrent</MudText>
 <MudCard Class="mx-auto my-6 p-4" Style="max-width: 400px;">
     @if (weatherData != null && openWeatherData != null)
     {
@@ -38,44 +36,92 @@
                 <MudText>🔆 Illumination: <strong>@weatherData.astronomy.astro.moon_illumination</strong></MudText>
             </MudStack>
         </MudCardContent>
+
+        <MudTextField @bind-Value="userHeightFt" Label="Mountain Height (ft)" Variant="Variant.Filled" />
+        <MudButton OnClick="CalculateTemp">Estimate Mountain Temperature</MudButton>
+
+        @if (mountainTemp.HasValue)
+        {
+            <MudText Typo="Typo.h6">Estimated Temperature at @userHeightFt ft: <strong>@($"{mountainTemp:F1}°F")</strong></MudText>
+        }
+
+
+
     }
     else
     {
         <MudCardContent>
             <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-            <MudText>Error</MudText>
         </MudCardContent>
     }
 </MudCard>
 
-@code {
-    string baseUrl = "http://api.weatherapi.com/v1";
-    string openBaseUrl = "https://api.openweathermap.org/data/2.5/";
+<!-- Spacer -->
+<div style="height: 100px;"></div>
+<div style="height: 100px;"></div>
+<div style="height: 100px;"></div>
+<div style="height: 100px;"></div>
 
-    string zip = "37601";
+@code {
+
+
+    string baseUrl = "https://api.weatherapi.com/v1";
+    string openBaseUrl = "https://api.openweathermap.org/data/2.5/";
     string lang = "eng";
 
     const string apiKey = "1821216d7f7042569f020624251207";
     const string openKey = "9b0943160bfda6c90993977dedf60773";
-    
-    public string url;
-    public string openUrl;
 
+    public string weatherApiUrl;
+    public string weatherApiUrlCurrent;
+    public string openWeatherUrl;
 
     private AstronomyCall.AstronomyRoot weatherData;
     private WeatherCall.OpenWeatherRoot? openWeatherData;
 
-    
+
+
+    double userHeightFt = 0;
+    double? mountainTemp = null;
+
+    double currentElevationFt = 1650; // Fallback: Johnson City elevation
+    double currentTemp = 72.0;
+
+
+    /// <summary>
+    /// calculate the estimated mountain temperature based on user input height and current weather data.
+    /// </summary>
+    void CalculateTemp()
+    {
+        if (openWeatherData?.main?.temp != null)
+        {
+            currentTemp = openWeatherData.main.temp;
+
+        }
+
+        double elevationDiff = userHeightFt - currentElevationFt;
+        double tempDrop = (elevationDiff / 1000.0) * 3.5;
+        mountainTemp = currentTemp - tempDrop;
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        url = $"{baseUrl}{WeatherApiEndpoints.Astronomy}?q={zip}&lang={lang}&key={apiKey}";
-        openUrl = $"{openBaseUrl}weather?zip={zip}&appid={openKey}&units=imperial";
+        var location = await Geolocation.GetLastKnownLocationAsync();
+        if (location != null)
+        {
+            double lat = location.Latitude;
+            double lon = location.Longitude;
+
+            // build the API URLs using the location data
+            weatherApiUrl = $"{baseUrl}{WeatherApiEndpoints.Astronomy}?q={lat},{lon}&lang={lang}&key={apiKey}";
+            weatherApiUrlCurrent = $"{baseUrl}{WeatherApiEndpoints.Current}?q={lat},{lon}&lang={lang}&key={apiKey}";
+            openWeatherUrl = $"{openBaseUrl}weather?lat={lat}&lon={lon}&appid={openKey}&units=imperial";
+        }
 
         try
         {
-            weatherData = await Http.GetFromJsonAsync<AstronomyCall.AstronomyRoot>(url);
-            openWeatherData = await Http.GetFromJsonAsync<WeatherCall.OpenWeatherRoot>(openUrl);
+            weatherData = await Http.GetFromJsonAsync<AstronomyCall.AstronomyRoot>(weatherApiUrl);
+            openWeatherData = await Http.GetFromJsonAsync<WeatherCall.OpenWeatherRoot>(openWeatherUrl);
         }
         catch (Exception ex)
         {
@@ -83,3 +129,4 @@
         }
     }
 }
+
